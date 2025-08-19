@@ -53,91 +53,100 @@ export const init = async () => {
             {
                 console.log('[ Axios.interceptor ] :: ERR :: [401]');
 
+                if( response.data.object === -1001) {
 
-                if ( processAwait == null)
-                {
-                    processAwait = 'temp'
+                    if (processAwait == null) {
+                        processAwait = 'temp'
 
-                    let refreshTokenParams = null;
-                    let config = response.config;
-                    let headers = config.headers;
+                        let refreshTokenParams = null;
+                        let config = response.config;
+                        let headers = config.headers;
 
-                    headers['Authorization'] = `${getRefreshToken()}`;
-                    refreshTokenParams = { accessToken: getAccessToken(), refreshToken: getRefreshToken() };
+                        headers['Authorization'] = `${getRefreshToken()}`;
+                        refreshTokenParams = {accessToken: getAccessToken(), refreshToken: getRefreshToken()};
 
-                    try {
-                        processAwait = axios.create({ headers }).post("/reissue", refreshTokenParams);
+                        try {
+                            const authBaseURL = import.meta.env.VITE_AUTH_URL;
+                            processAwait = axios.create({
+                                baseURL: authBaseURL,
+                                headers
+                            }).post("/refresh", refreshTokenParams);
 
-                        await processAwait.then( ( {status, data}) => {
+                            await processAwait.then(({status, data}) => {
 
-                            if (status == 200)
-                            {
-                                console.log('[ Axios.interceptor ] :: ERR :: [/reissue] : GET NEW TOKEN');
+                                if (status == 200) {
+                                    console.log('[ Axios.interceptor ] :: ERR :: [/refresh] : GET NEW TOKEN');
 
-                                // 토큰 세팅
-                                const newAccessToken = data.object.accessToken;
-                                const newRefreshToken = data.object.refreshToken;
+                                    // 토큰 세팅
+                                    const newAccessToken = data.object.accessToken;
+                                    const newRefreshToken = data.object.refreshToken;
 
-                                setAccessToken(newAccessToken);
-                                setRefreshToken(newRefreshToken);
+                                    setAccessToken(newAccessToken);
+                                    setRefreshToken(newRefreshToken);
 
-                                console.log('[ Axios.interceptor ] :: ERR :: [/reissue] : 엑세스 토큰 갱신');
-                                processAwait = null;
+                                    console.log('[ Axios.interceptor ] :: ERR :: [/refresh] : 엑세스 토큰 갱신');
 
-                                headers['Authorization'] = getAccessToken();
-                                const retryAxios = axios.create({headers});
+                                    headers['Authorization'] = getAccessToken();
+                                    const retryAxios = axios.create({headers});
 
-                                if (config.method === 'get') {
-                                    return retryAxios.get(config.url)
-                                } else if (config.method === 'post') {
-                                    return retryAxios.post(config.url, config.data);
-                                } else if (config.method === 'patch') {
-                                    return retryAxios.patch(config.url, config.data);
-                                } else if (config.method === 'put') {
-                                    return retryAxios.put(config.url, config.data);
-                                } else if (config.method === 'delete') {
-                                    return retryAxios.delete(config.url, {data: config.data});
+                                    if (config.method === 'get') {
+                                        return retryAxios.get(config.url)
+                                    } else if (config.method === 'post') {
+                                        return retryAxios.post(config.url, config.data);
+                                    } else if (config.method === 'patch') {
+                                        return retryAxios.patch(config.url, config.data);
+                                    } else if (config.method === 'put') {
+                                        return retryAxios.put(config.url, config.data);
+                                    } else if (config.method === 'delete') {
+                                        return retryAxios.delete(config.url, {data: config.data});
+                                    }
+                                    processAwait = null;
+                                } else {
+                                    //토큰재발급 애러 :  토큰 삭제 후 로그인 페이지
+                                    processAwait = null;
+                                    removeAuthTokens()
+                                    location.href = '/login';
+                                    Promise.resolve(response);
                                 }
-                            }
-                            else
-                            {
-                                //토큰재발급 애러 :  토큰 삭제 후 로그인 페이지
-                                processAwait = null;
-                                removeAuthTokens()
-                                location.href = '/login';
-                                Promise.resolve(response);
-                            }
-                        })
+                            })
+                        } catch (e) {
+                            //토큰재발급 애러 :  토큰 삭제 후 로그인 페이지
+                            removeAuthTokens()
+                            location.href = '/login';
+                            return Promise.reject(e)
+                        }
+                    } else {
+                        await processAwait
+
+                        let config = response.config;
+                        let headers = config.headers;
+
+                        config.headers['Authorization'] = getAccessToken();
+                        const retryAxios = axios.create({headers});
+
+                        if (config.method === 'get') {
+                            return retryAxios.get(config.url)
+                        } else if (config.method === 'post') {
+                            return retryAxios.post(config.url, config.data);
+                        } else if (config.method === 'patch') {
+                            return retryAxios.patch(config.url, config.data);
+                        } else if (config.method === 'put') {
+                            return retryAxios.put(config.url, config.data);
+                        } else if (config.method === 'delete') {
+                            return retryAxios.delete(config.url, {data: config.data});
+                        }
                     }
-                    catch(e)
-                    {
-                        //토큰재발급 애러 :  토큰 삭제 후 로그인 페이지
-                        removeAuthTokens()
-                        location.href = '/login';
-                        return Promise.reject(e)
-                    }
+                }
+                else if(response.data.object === -1002)
+                {
+                    console.log('[ Axios.interceptor ] :: ERR :: [-1002] : WRONG TOKEN -> go login');
+                    removeAuthTokens();
+                    location.href = '/';
                 }
                 else
                 {
-                    await processAwait
-
-                    let config = response.config;
-                    let headers = config.headers;
-
-                    config.headers['Authorization'] = getAccessToken();
-                    const retryAxios = axios.create({headers});
-
-                    if (config.method === 'get') {
-                        return retryAxios.get(config.url)
-                    } else if (config.method === 'post') {
-                        return retryAxios.post(config.url, config.data);
-                    } else if (config.method === 'patch') {
-                        return retryAxios.patch(config.url, config.data);
-                    } else if (config.method === 'put') {
-                        return retryAxios.put(config.url, config.data);
-                    } else if (config.method === 'delete') {
-                        return retryAxios.delete(config.url, {data: config.data});
-                    }
+                    console.log('else')
+                    return Promise.resolve(response);
                 }
 
             }
