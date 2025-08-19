@@ -2,10 +2,43 @@ import Navbar from "react-bootstrap/Navbar";
 import Container from "react-bootstrap/Container";
 import Nav from "react-bootstrap/Nav";
 import {UserStore} from "../../store/UserStore.jsx";
+import {useMutation} from "@tanstack/react-query";
+import {loginApi, logoutApi} from "../../api/user/UserApi.jsx";
+import {getRefreshToken, removeAuthTokens, setAccessToken, setRefreshToken} from "../../helpers/AuthHelper.jsx";
+import {useNavigate} from "react-router-dom";
+import {useState} from "react";
 
 function Header() {
 
-    const {isLogin} = UserStore((state) => state)
+    const nav = useNavigate();
+    const { isLogin , setIsLogin} = UserStore((state) => state);
+
+    const logout = useMutation({
+        mutationFn: () => {
+            const token = getRefreshToken()
+            return logoutApi(token)
+                .then( result => {
+                    console.log(result)
+                    if(result.status === 200)
+                    {
+
+                        removeAuthTokens()
+
+                        setIsLogin(false);
+                        nav('/')
+
+                    }else{
+                        alert(result.data.message)
+                    }
+                })
+                .catch(
+                    reason => {
+                        console.log(reason)
+                    }
+                )
+                .finally()
+        }
+    })
 
     return(
         <>
@@ -20,7 +53,11 @@ function Header() {
                         </Nav>
                         <Nav>
                             {
-                                isLogin ? <Nav.Link href="#deets">로그아웃</Nav.Link>
+                                isLogin ?
+                                    <>
+                                        <Nav.Link href="/mypage">마이페이지</Nav.Link>
+                                        <Nav.Link onClick={logout.mutate} >로그아웃</Nav.Link>
+                                    </>
                                     :
                                     <Nav.Link href="/login">로그인</Nav.Link>
                             }

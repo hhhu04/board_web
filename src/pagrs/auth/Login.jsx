@@ -5,7 +5,7 @@ import {useEffect, useState} from "react";
 import {Button} from "react-bootstrap";
 import {useMutation} from "@tanstack/react-query";
 import {setAccessToken, setRefreshToken} from "../../helpers/AuthHelper.jsx";
-import {loginApi} from "../../api/user/UsereApi.jsx";
+import {loginApi} from "../../api/user/UserApi.jsx";
 import {useNavigate} from "react-router-dom";
 import {UserStore} from "../../store/UserStore.jsx";
 

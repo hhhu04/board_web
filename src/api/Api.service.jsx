@@ -16,6 +16,16 @@ export const login = async (params) => {
         }).catch(errorHandler);
 }
 
+export const logout= async (params) => {
+    console.log('=> Api.service:login');
+
+    await init();
+    return axios.post(import.meta.env.VITE_AUTH_URL+"/logout",params)
+        .then(({ status, data }) => {
+            return { status, data };
+        }).catch(errorHandler);
+}
+
 export const get = async (url, slug = {}) => {
     console.log('=> Api.service:get');
 
