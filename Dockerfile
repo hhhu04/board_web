@@ -7,8 +7,8 @@ ENV VITE_AUTH_URL=$VITE_AUTH_URL
 ENV VITE_APP_ENV=$VITE_APP_ENV
 
 # 패키지 파일 복사 및 설치
-COPY package.json ./
-RUN npm ci --only=production
+COPY package.json package-lock.json ./
+RUN npm ci --omit=dev
 
 # 소스코드 복사 및 빌드
 COPY . .
