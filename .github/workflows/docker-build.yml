@@ -48,7 +48,7 @@ jobs:
             VITE_SERVER_URL=${{ secrets.VITE_SERVER_URL }}
             VITE_AUTH_URL=${{ secrets.VITE_AUTH_URL }}
             VITE_APP_ENV=${{ secrets.VITE_APP_ENV }}
-            VITE_APP_COOKIE_DOMAIN=*.dev.atteri.co.kr
+            VITE_APP_COOKIE_DOMAIN=board-web.dev.atteri.co.kr
 
       - name: Get existing container ID
         id: get_container
