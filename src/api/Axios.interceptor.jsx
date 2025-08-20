@@ -72,35 +72,34 @@ export const init = async () => {
                                     headers
                                 }).post("/refresh", refreshTokenParams);
 
-                                await processAwait.then(({status, data}) => {
+                                const result = await processAwait;
+                                const {status, data} = result;
 
-                                    if (status == 200) {
-                                        console.log('[ Axios.interceptor ] :: ERR :: [/refresh] : GET NEW TOKEN');
+                                if (status == 200) {
+                                    console.log('[ Axios.interceptor ] :: ERR :: [/refresh] : GET NEW TOKEN');
 
-                                        // 토큰 세팅
-                                        const newAccessToken = data.token;
-                                        const newRefreshToken = data.refreshToken;
+                                    // 토큰 세팅
+                                    const newAccessToken = data.token;
+                                    const newRefreshToken = data.refreshToken;
 
-                                        setAccessToken(newAccessToken);
-                                        setRefreshToken(newRefreshToken);
+                                    setAccessToken(newAccessToken);
+                                    setRefreshToken(newRefreshToken);
 
-                                        console.log('[ Axios.interceptor ] :: ERR :: [/refresh] : 엑세스 토큰 갱신');
+                                    console.log('[ Axios.interceptor ] :: ERR :: [/refresh] : 엑세스 토큰 갱신');
 
-                                        config.headers.Authorization = `Bearer ${getAccessToken()}`;
+                                    config.headers.Authorization = `Bearer ${getAccessToken()}`;
 
+                                    processAwait = null;
 
-                                        processAwait = null;
+                                    return axios(config);
 
-                                        return axios(config)
-
-                                    } else {
-                                        //토큰재발급 애러 :  토큰 삭제 후 로그인 페이지
-                                        processAwait = null;
-                                        removeAuthTokens()
-                                        location.href = '/login';
-                                        Promise.resolve(response);
-                                    }
-                                })
+                                } else {
+                                    //토큰재발급 애러 :  토큰 삭제 후 로그인 페이지
+                                    processAwait = null;
+                                    removeAuthTokens()
+                                    location.href = '/login';
+                                    return Promise.reject(result);
+                                }
                             } catch (e) {
                                 //토큰재발급 애러 :  토큰 삭제 후 로그인 페이지
                                 removeAuthTokens()

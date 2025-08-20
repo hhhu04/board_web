@@ -13,22 +13,22 @@ export const Mypage = () => {
         if(!isLogin){
             nav('/')
         }
+    },[isLogin, nav])
+
+    const {data, isPending, isError, error} = useQuery({
+        queryKey: ["USER_INFO"],
+        queryFn: getUserInfo,
+        enabled: isLogin
     })
 
-    const {isPending, isError, error, data} = useQuery({
-        queryKey: ["USER_INFO"],
-        queryFn: () => getUserInfo(),
-    })
+
+    if(isPending) return <h1>로딩중</h1>
+    if(isError) return <h1>에러 발생</h1>
 
     return(
-        isPending || !data?
-            <>
-                <h1>로딩중</h1>
-            </>
-            :
             <>
                 <h1>마이페이지</h1>
-                <p>아이디 : {data.userId}</p>
+                <p>아이디 : {data?.userId}</p>
             </>
     )
 }
