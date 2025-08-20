@@ -131,7 +131,7 @@ jobs:
               \"HostConfig\": {
                 \"NetworkMode\": \"local\",
                 \"PortBindings\": {
-                  \"3000/tcp\": [{\"HostPort\": \"30\"}]
+                  \"3000/tcp\": [{\"HostPort\": \"3000\"}]
                 },
                 \"RestartPolicy\": {
                   \"Name\": \"unless-stopped\"
