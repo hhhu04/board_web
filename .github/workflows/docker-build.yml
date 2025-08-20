@@ -44,6 +44,10 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+          build-args: |
+            VITE_SERVER_URL=${{ secrets.VITE_SERVER_URL }}
+            VITE_AUTH_URL=${{ secrets.VITE_AUTH_URL }}
+            VITE_APP_ENV=${{ secrets.VITE_APP_ENV }}
 
       - name: Get existing container ID
         id: get_container
@@ -127,12 +131,16 @@ jobs:
               \"HostConfig\": {
                 \"NetworkMode\": \"local\",
                 \"PortBindings\": {
-                  \"8081/tcp\": [{\"HostPort\": \"8081\"}]
+                  \"3000/tcp\": [{\"HostPort\": \"30\"}]
                 },
                 \"RestartPolicy\": {
                   \"Name\": \"unless-stopped\"
                 }
-              }
+              },
+              \"Env\": [
+                \"NODE_ENV=development\",
+                \"CHOKIDAR_USEPOLLING=true\"
+              ]
             }"
 
       - name: Start container
