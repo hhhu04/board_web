@@ -1,0 +1,143 @@
+name: Build and Push Docker Image
+
+on:
+  push:
+    branches:
+      - dev
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Log in to Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=ref,event=branch
+            type=raw,value=latest
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+
+      - name: Get existing container ID
+        id: get_container
+        run: |
+          CONTAINER_NAME="${{ github.event.repository.name }}"
+          echo "Looking for container: $CONTAINER_NAME"
+          
+          # API 호출 및 JSON 파싱
+          RESPONSE=$(curl -s "${{ secrets.PORTAINERURL }}/api/endpoints/${{ secrets.PORTAINER_ENV_NO }}/docker/containers/json?all=true" \
+          -H "X-API-KEY: ${{ secrets.PORTAINERTOKEN }}")
+          
+          # JSON 유효성 검사
+          if echo "$RESPONSE" | jq empty 2>/dev/null; then
+          echo "✅ Valid JSON response"
+          
+          # 컨테이너 ID 추출 (안전한 방법)
+          CONTAINER_ID=$(echo "$RESPONSE" | jq -r '
+          .[] |
+          select(.Names[]? | test("^/'$CONTAINER_NAME'$")) |
+          .Id // empty
+          ' 2>/dev/null)
+          
+          # 결과 확인
+          if [ -z "$CONTAINER_ID" ] || [ "$CONTAINER_ID" = "null" ]; then
+          echo "No existing container found with name: $CONTAINER_NAME"
+          CONTAINER_ID=""
+          else
+          echo "Found container ID: $CONTAINER_ID"
+          fi
+          else
+          echo "❌ Invalid JSON or API error"
+          echo "Response: $RESPONSE"
+          CONTAINER_ID=""
+          fi
+          
+          echo "container_id=$CONTAINER_ID" >> $GITHUB_OUTPUT
+          echo "container_name=$CONTAINER_NAME" >> $GITHUB_OUTPUT
+
+      - name: Delete existing container
+        if: steps.get_container.outputs.container_id != '' && steps.get_container.outputs.container_id != 'null'
+        run: |
+          CONTAINER_ID="${{ steps.get_container.outputs.container_id }}"
+          echo "Deleting container ID: $CONTAINER_ID"
+
+          # 안전한 curl 명령어
+          RESPONSE=$(curl -s -w "HTTPSTATUS:%{http_code}" \
+            -X DELETE "${{ secrets.PORTAINERURL }}/api/endpoints/${{ secrets.PORTAINER_ENV_NO }}/docker/containers/$CONTAINER_ID?force=true" \
+            -H "X-API-KEY: ${{ secrets.PORTAINERTOKEN }}")
+
+          HTTP_STATUS=$(echo $RESPONSE | tr -d '\n' | sed -e 's/.*HTTPSTATUS://')
+          BODY=$(echo $RESPONSE | sed -e 's/HTTPSTATUS:.*//g')
+
+          echo "HTTP Status: $HTTP_STATUS"
+          echo "Response: $BODY"
+
+          if [ $HTTP_STATUS -eq 204 ] || [ $HTTP_STATUS -eq 200 ]; then
+            echo "✅ Container deleted successfully"
+          else
+            echo "❌ Failed to delete container (Status: $HTTP_STATUS)"
+            # 컨테이너가 이미 없을 수도 있으니 계속 진행
+          fi
+
+      - name: Pull latest image (with error handling)
+        run: |
+          echo "Pulling latest image..."
+          REGISTRY_ENCODED=$(echo "${{ env.REGISTRY }}" | sed 's|/|%2F|g')
+          IMAGE_ENCODED=$(echo "${{ env.IMAGE_NAME }}" | sed 's|/|%2F|g')
+          
+          curl -s -X POST "${{ secrets.PORTAINERURL }}/api/endpoints/${{ secrets.PORTAINER_ENV_NO }}/docker/images/create?fromImage=${REGISTRY_ENCODED}%2F${IMAGE_ENCODED}&tag=latest" \
+          -H "X-API-KEY: ${{ secrets.PORTAINERTOKEN }}" \
+          -H "Referer: ${{ secrets.PORTAINERURL }}"
+
+      - name: Create new container
+        run: |
+          echo "Creating new container with image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest"
+          curl -s -X POST "${{ secrets.PORTAINERURL }}/api/endpoints/${{ secrets.PORTAINER_ENV_NO }}/docker/containers/create?name=${{ steps.get_container.outputs.container_name }}" \
+            -H "X-API-KEY: ${{ secrets.PORTAINERTOKEN }}" \
+            -H "Content-Type: application/json" \
+            -d "{
+              \"Image\": \"${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest\",
+              \"HostConfig\": {
+                \"NetworkMode\": \"local\",
+                \"PortBindings\": {
+                  \"8081/tcp\": [{\"HostPort\": \"8081\"}]
+                },
+                \"RestartPolicy\": {
+                  \"Name\": \"unless-stopped\"
+                }
+              }
+            }"
+
+      - name: Start container
+        run: |
+          echo "Starting container..."
+          curl -s -X POST "${{ secrets.PORTAINERURL }}/api/endpoints/${{ secrets.PORTAINER_ENV_NO }}/docker/containers/${{ steps.get_container.outputs.container_name }}/start" \
+            -H "X-API-KEY: ${{ secrets.PORTAINERTOKEN }}"
+          echo "✅ Deployment completed!"
