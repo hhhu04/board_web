@@ -1,0 +1,64 @@
+name: Production S3 Deploy and CloudFront Invalidation
+
+on:
+  push:
+    branches:
+      - prod
+
+env:
+  NODE_VERSION: '22'
+  AWS_REGION: ap-northeast-2
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: production
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build for production
+        run: npm run build --mode prod
+        env:
+          VITE_SERVER_URL: ${{ secrets.VITE_PROD_SERVER_URL }}
+          VITE_AUTH_URL: ${{ secrets.VITE_PROD_AUTH_URL }}
+          VITE_APP_ENV: production
+          VITE_APP_COOKIE_DOMAIN: ${{ secrets.VITE_PROD_COOKIE_DOMAIN }}
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Deploy to S3
+        run: |
+          aws s3 sync ./dist s3://${{ secrets.S3_BUCKET_NAME }} --delete --cache-control max-age=31536000,public
+          aws s3 cp s3://${{ secrets.S3_BUCKET_NAME }}/index.html s3://${{ secrets.S3_BUCKET_NAME }}/index.html --cache-control max-age=0,no-cache,no-store,must-revalidate --content-type text/html
+
+      - name: Invalidate CloudFront
+        run: |
+          DISTRIBUTION_ID="${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }}"
+          INVALIDATION_ID=$(aws cloudfront create-invalidation --distribution-id $DISTRIBUTION_ID --paths "/*" --query 'Invalidation.Id' --output text)
+          echo "CloudFront invalidation created with ID: $INVALIDATION_ID"
+          echo "Waiting for invalidation to complete..."
+          aws cloudfront wait invalidation-completed --distribution-id $DISTRIBUTION_ID --id $INVALIDATION_ID
+          echo "✅ CloudFront invalidation completed!"
+
+      - name: Deployment Summary
+        run: |
+          echo "🚀 Production deployment completed successfully!"
+          echo "📦 S3 Bucket: ${{ secrets.S3_BUCKET_NAME }}"
+          echo "🌐 CloudFront Distribution: ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }}"
+          echo "⚡ Cache invalidation completed"
