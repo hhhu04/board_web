@@ -28,7 +28,7 @@ jobs:
         run: npm ci
 
       - name: Build for production
-        run: npm run build --mode prod
+        run: npm run build
         env:
           VITE_SERVER_URL: ${{ secrets.VITE_PROD_SERVER_URL }}
           VITE_AUTH_URL: ${{ secrets.VITE_PROD_AUTH_URL }}
