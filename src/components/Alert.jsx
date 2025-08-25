@@ -29,7 +29,14 @@ export const Alert = (param) => {
                                 <Button variant="primary" onClick={callback}>확인</Button>
                             </>
                             :
-                            <Button variant="primary" onClick={setShowPop}>확인</Button>
+                            <>
+                                {
+                                    callback !== null ?
+                                        <Button variant="primary" onClick={callback}>확인</Button>
+                                        :
+                                        <Button variant="primary" onClick={setShowPop}>확인</Button>
+                                }
+                            </>
                     }
                 </Modal.Footer>
             </Modal>

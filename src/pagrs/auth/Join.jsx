@@ -1,16 +1,16 @@
 import Col from 'react-bootstrap/Col';
 import Form from 'react-bootstrap/Form';
 import Row from 'react-bootstrap/Row';
-import {useEffect, useState} from "react";
+import {useCallback, useEffect, useState} from "react";
 import {Button} from "react-bootstrap";
 import {useMutation} from "@tanstack/react-query";
 import {setAccessToken, setRefreshToken} from "../../helpers/AuthHelper.jsx";
-import {loginApi} from "../../api/user/UserApi.jsx";
+import {joinUser, loginApi} from "../../api/user/UserApi.jsx";
 import {useNavigate} from "react-router-dom";
 import {UserStore} from "../../store/UserStore.jsx";
 import Alert from "../../components/Alert.jsx";
 
-function Login(){
+function Join(){
 
     const nav = useNavigate();
     const [formData, setFormData] = useState({userId:'',password:''})
@@ -31,6 +31,16 @@ function Login(){
         setShowPop(false)
     }
 
+    const goLogin = () => {
+        nav('/login')
+    }
+
+    const showAlert = useCallback((message, onConfirm = closePop) => {
+        setPopMessage(message);
+        setType('alert');
+        setShowPop(true);
+        setCallback(() => onConfirm); // 함수를 반환하는 함수로 설정
+    }, [closePop]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -40,46 +50,41 @@ function Login(){
         }));
     };
 
-    const login = ()  => {
+    const join = ()  => {
 
         if(!formData.userId){
-            alert('아이디를 입력해주세요')
+            showAlert('아이디를 입력해주세요')
             return
         }
 
         if(!formData.password){
-            alert('비밀번호를 입력해주세요')
+            showAlert('비밀번호를 입력해주세요')
+            setType('alert')
+            setShowPop(true)
+            setCallback(closePop)
             return;
         }
 
-        loginMutaion.mutate(formData)
+        joinMutaion.mutate(formData)
 
     }
 
-    const loginMutaion = useMutation({
+    const joinMutaion = useMutation({
         mutationFn: (account) => {
-            return loginApi(account)
+            return joinUser(account)
                 .then( result => {
                     console.log(result)
                     if(result.status === 200)
                     {
-                        console.log(result.data.token)
-                        const accessToken = result.data.token;
-                        const refreshToken = result.data.refreshToken;
-
-                        setAccessToken(accessToken)
-                        setRefreshToken(refreshToken)
-
-                        setIsLogin(true);
-                        nav('/')
-
+                        showAlert('가입되었습니다. 로그인 페이지로 이동합니다.', goLogin);
                     }else{
-                        alert(result.data.message)
+                        showAlert(result.data?.message || '가입에 실패했습니다.');
                     }
                 })
                 .catch(
-                    reason => {
-                        console.log(reason)
+                    (err) => {
+                        const errorMessage = err.response?.data?.message || err.message || '가입 중 오류가 발생했습니다.';
+                        showAlert(errorMessage);
                     }
                 )
                 .finally()
@@ -89,7 +94,7 @@ function Login(){
 
     return(
         <>
-            <h2 className="mb-4">로그인</h2>
+            <h2 className="mb-4">회원가입</h2>
             <Form>
                 <Form.Group as={Row} className="mb-3" controlId="formPlaintextId">
                     <Form.Label column sm="2">
@@ -110,26 +115,28 @@ function Login(){
                 </Form.Group>
 
                 <Row>
-                    <Col sm={{span: 10, offset: 2}}>
-                        <Button type="button" variant="primary" onClick={login}>
-                            로그인
-                        </Button>
-                        <Button type="button" variant="dark" onClick={() => nav('/join')} className="ms-2">
+                    <Col sm={{ span: 10, offset: 2 }}>
+                        <Button type="button" variant="primary" onClick={join}>
                             회원가입
+                        </Button>
+                        <Button type="button" variant="dark" onClick={()=>nav('/login')} className="ms-2">
+                            취소
                         </Button>
                     </Col>
 
                 </Row>
 
             </Form>
+
             <Alert
                 message={popMessage}
                 type={type}
                 showPop={showPop}
                 setShowPop={closePop}
+                callback={callback}
             />
         </>
     )
 }
 
-export default Login
+export default Join

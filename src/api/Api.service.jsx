@@ -80,7 +80,7 @@ export const remove = async (url, params = {}) => {
         }).catch(errorHandler);
 }
 
-const errorHandler = ({ response }) => {
-    console.log('errorHandler : ' + response)
-   return response;
+const errorHandler = (error) => {
+    console.log('errorHandler : ', error)
+    throw error;
 }

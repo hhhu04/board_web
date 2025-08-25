@@ -47,8 +47,6 @@ export const init = async () => {
                 const config = err.config;          // 기존에 수행하려고 했던 작업
                 const response = err.response;
 
-                console.log(`[ Axios.interceptor ] :: response [${config.method}] ${config.url}`);
-
                 if( response.status === 401)
                 {
                     console.log('[ Axios.interceptor ] :: ERR :: [401]');
@@ -144,6 +142,10 @@ export const init = async () => {
                 else if(response.status === 500)
                 {
                     return Promise.resolve(response);
+                }
+                else
+                {
+                    return Promise.reject(err);
                 }
 
             });

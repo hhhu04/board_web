@@ -47,7 +47,11 @@ function Home() {
 
         }
 
-        searchUser()
+        switch (radioVal){
+            case '사퍼':void cyphersSearch();break;
+            case '던파':void dnfSearch();break;
+
+        }
 
     }
 
@@ -55,7 +59,7 @@ function Home() {
         setShowPop(false)
     }
 
-    const {data:userData, isPending, isError, error, refetch: searchUser} = useQuery({
+    const {data:cyphersData, refetch: cyphersSearch} = useQuery({
         queryKey: ["CYPHERS_INFO"],
         queryFn: () => {
             if (!params.nickname) {
@@ -65,6 +69,18 @@ function Home() {
         },
         enabled: false
     })
+
+    const {data:dnfData, refetch: dnfSearch} = useQuery({
+        queryKey: ["CYPHERS_INFO"],
+        queryFn: () => {
+            if (!params.nickname) {
+                return null;
+            }
+            return getCypherInfo(params);
+        },
+        enabled: false
+    })
+
 
     const favoriteUpdate = (game_type, game_key) => {
         if(!isLogin){
@@ -90,7 +106,11 @@ function Home() {
                     if(result.status === 200)
                     {
                         console.log(result.data)
-                        searchUser()
+                        switch (radioVal){
+                            case '사퍼':void cyphersSearch();break;
+                            case '던파':void dnfSearch();break;
+
+                        }
                     }else{
                         alert(result.data.message)
                     }
@@ -153,68 +173,62 @@ function Home() {
                 </Button>
             </div>
 
-            {
-                userData !== null && userData !== undefined ?
+
+                {
+                    cyphersData !== null && cyphersData !== undefined && radioVal === '사퍼' ?
                         <>
-                        {
-                            radioVal === '사퍼' ?
-                                <>
-                                    <div style={{ display: 'flex', justifyContent: 'center', marginTop: '30px' }}>
-                                        <Card style={{ width: '18rem' }}>
-                                            <Card.Img variant="top" src={`https://img-api.neople.co.kr/cy/characters/${userData.represent.characterId}?zoom=3`}/>
-                                            <Card.Body>
-                                                <div className="d-flex justify-content-between align-items-center mb-3">
-                                                    <Card.Title className="mb-0">{userData?.nickname}</Card.Title>
-                                                    {
-                                                        isLogin ?
-                                                            <Button
-                                                                variant={userData.favorite ? "warning" : "outline-warning"}
-                                                                size="sm"
-                                                                onClick={() => favoriteUpdate(2,userData.playerId)}
-                                                            >
-                                                                {userData.favorite ? "⭐" : "☆"}
-                                                            </Button>
-                                                            :
-                                                            null
-                                                    }
-                                                </div>
-                                                <div className="d-flex flex-column gap-2">
-                                                    <div className="d-flex justify-content-between">
-                                                        <span className="fw-bold">등급:</span>
-                                                        <span>{userData?.grade}</span>
-                                                    </div>
-                                                    <div className="d-flex justify-content-between">
-                                                        <span className="fw-bold">클랜:</span>
-                                                        <span>{userData?.clanName || '없음'}</span>
-                                                    </div>
-                                                    <div className="d-flex justify-content-between">
-                                                        <span className="fw-bold">티어:</span>
-                                                        <span>{userData?.tierName || '기록없음'}</span>
-                                                    </div>
-                                                </div>
-                                            </Card.Body>
-                                        </Card>
-                                    </div>
-                                </>
-                                :
-                                null
-                        }
-                        {
-                            radioVal === '던파' ?
-                                <Card.Img variant="top" src="holder.js/100px180" />
-                                :
-                                null
-                        }
-                        {
-                            radioVal === '롤' ?
-                                <Card.Img variant="top" src="holder.js/100px180" />
-                                :
-                                null
-                        }
+                            <div style={{ display: 'flex', justifyContent: 'center', marginTop: '30px' }}>
+                                <Card style={{ width: '18rem' }}>
+                                    <Card.Img variant="top" src={`https://img-api.neople.co.kr/cy/characters/${cyphersData.represent.characterId}?zoom=3`}/>
+                                    <Card.Body>
+                                        <div className="d-flex justify-content-between align-items-center mb-3">
+                                            <Card.Title className="mb-0">{cyphersData?.nickname}</Card.Title>
+                                            {
+                                                isLogin ?
+                                                    <Button
+                                                        variant={cyphersData.favorite ? "warning" : "outline-warning"}
+                                                        size="sm"
+                                                        onClick={() => favoriteUpdate(2,cyphersData.playerId)}
+                                                    >
+                                                        {cyphersData.favorite ? "⭐" : "☆"}
+                                                    </Button>
+                                                    :
+                                                    null
+                                            }
+                                        </div>
+                                        <div className="d-flex flex-column gap-2">
+                                            <div className="d-flex justify-content-between">
+                                                <span className="fw-bold">등급:</span>
+                                                <span>{cyphersData?.grade}</span>
+                                            </div>
+                                            <div className="d-flex justify-content-between">
+                                                <span className="fw-bold">클랜:</span>
+                                                <span>{cyphersData?.clanName || '없음'}</span>
+                                            </div>
+                                            <div className="d-flex justify-content-between">
+                                                <span className="fw-bold">티어:</span>
+                                                <span>{cyphersData?.tierName || '기록없음'}</span>
+                                            </div>
+                                        </div>
+                                    </Card.Body>
+                                </Card>
+                            </div>
                         </>
-                    :
-                    null
-            }
+                        :
+                        null
+                }
+                {
+                    radioVal === '던파' ?
+                        <Card.Img variant="top" src="holder.js/100px180" />
+                        :
+                        null
+                }
+                {
+                    radioVal === '롤' ?
+                        <Card.Img variant="top" src="holder.js/100px180" />
+                        :
+                        null
+                }
 
 
             <Alert

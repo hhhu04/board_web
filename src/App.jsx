@@ -7,6 +7,7 @@ import Login from "./pagrs/auth/Login.jsx";
 import Mypage from "./pagrs/mypage/Mypage.jsx";
 import {getAccessToken} from "./helpers/AuthHelper.jsx";
 import {UserStore} from "./store/UserStore.jsx";
+import Join from "./pagrs/auth/Join.jsx";
 
 function App() {
 
@@ -25,6 +26,7 @@ function App() {
              <Route element={<Layout/>}>
                 <Route index element={<Home/>}/>
                  <Route path="/login" element={<Login/>}/>
+                 <Route path="/join" element={<Join/>}/>
                  <Route path="/mypage" element={<Mypage/>}/>
              </Route>
          </Routes>
