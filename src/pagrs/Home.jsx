@@ -1,8 +1,8 @@
 import Form from "react-bootstrap/Form";
 import {Button, Card} from "react-bootstrap";
-import {useState} from "react";
+import {useCallback, useEffect, useState} from "react";
 import {useMutation, useQuery} from "@tanstack/react-query";
-import {getCypherInfo, mergeFavorites} from "../api/game/GameApi.jsx";
+import {getCypherInfo, getDnfInfo, mergeFavorites} from "../api/game/GameApi.jsx";
 import Alert from "../components/Alert.jsx";
 import {UserStore} from "../store/UserStore.jsx";
 
@@ -22,20 +22,37 @@ function Home() {
 
     const { isLogin } = UserStore((state) => state);
 
+
+    const closePop = () => {
+        setShowPop(false)
+    }
+
+    const showAlert = useCallback((message, onConfirm = closePop) => {
+        setPopMessage(message);
+        setType('alert');
+        setShowPop(true);
+        setCallback(() => onConfirm); // 함수를 반환하는 함수로 설정
+    }, [closePop]);
+
+    const handleRadioChange = (value) => {
+        setRadioVal(value);
+        setNicknameVal('');
+        removeCyphersData?.();
+        removeDnfData?.();
+    };
+
     const search = () => {
         if(!radioVal){
-            setPopMessage('게임 종류를 선택해주세요.')
-            setType('alert')
-            setShowPop(true)
+            showAlert('게임 종류를 선택해주세요.')
             return
         }
 
         if(!nicknameVal){
-            setPopMessage('닉네임 또는 아이디를 입력해주세요.')
-            setType('alert')
-            setShowPop(true)
+            showAlert('닉네임 또는 아이디를 입력해주세요.')
             return
         }
+
+        console.log(radioVal)
 
         switch (radioVal)
         {
@@ -43,23 +60,22 @@ function Home() {
                 setParams({
                     nickname: nicknameVal
                 })
+                void cyphersSearch();
+                break;
+            case '던파':
+                setParams({
+                    characterName: nicknameVal
+                })
+                void dnfSearch();
                 break;
 
         }
 
-        switch (radioVal){
-            case '사퍼':void cyphersSearch();break;
-            case '던파':void dnfSearch();break;
-
-        }
 
     }
 
-    const closePop = () => {
-        setShowPop(false)
-    }
 
-    const {data:cyphersData, refetch: cyphersSearch} = useQuery({
+    const {data:cyphersData, refetch: cyphersSearch, remove: removeCyphersData} = useQuery({
         queryKey: ["CYPHERS_INFO"],
         queryFn: () => {
             if (!params.nickname) {
@@ -70,13 +86,13 @@ function Home() {
         enabled: false
     })
 
-    const {data:dnfData, refetch: dnfSearch} = useQuery({
-        queryKey: ["CYPHERS_INFO"],
+    const {data:dnfData, refetch: dnfSearch, remove: removeDnfData} = useQuery({
+        queryKey: ["DNF_INFO"],
         queryFn: () => {
-            if (!params.nickname) {
+            if (!params.characterName) {
                 return null;
             }
-            return getCypherInfo(params);
+            return getDnfInfo(params);
         },
         enabled: false
     })
@@ -84,9 +100,7 @@ function Home() {
 
     const favoriteUpdate = (game_type, game_key) => {
         if(!isLogin){
-            setPopMessage('로그인 후 이용해주세요.')
-            setType('alert')
-            setShowPop(true)
+            showAlert('로그인 후 이용해주세요.')
             return
         }
 
@@ -137,7 +151,8 @@ function Home() {
                             type={type}
                             id={`inline-${type}-1`}
                             value="던파"
-                            onChange={(e) => setRadioVal(e.target.value)}
+                            checked={radioVal === '던파'}
+                            onChange={(e) => handleRadioChange(e.target.value)}
                         />
                         <Form.Check
                             inline
@@ -146,7 +161,8 @@ function Home() {
                             type={type}
                             id={`inline-${type}-2`}
                             value="사퍼"
-                            onChange={(e) => setRadioVal(e.target.value)}
+                            checked={radioVal === '사퍼'}
+                            onChange={(e) => handleRadioChange(e.target.value)}
                         />
                         <Form.Check
                             inline
@@ -155,7 +171,8 @@ function Home() {
                             type={type}
                             id={`inline-${type}-3`}
                             value="롤"
-                            onChange={(e) => setRadioVal(e.target.value)}
+                            checked={radioVal === '롤'}
+                            onChange={(e) => handleRadioChange(e.target.value)}
                         />
                     </div>
                 ))}
@@ -164,10 +181,11 @@ function Home() {
                 type="text"
                 id="inputPassword5"
                 placeholder="닉네임/아이디"
+                value={nicknameVal}
                 onChange={(e) => setNicknameVal(e.target.value)}
             />
             <br/>
-            <div className="d-grid gap-2">
+            <div className="d-grid gap-2" style={{ zIndex: 1, position: 'relative' }}>
                 <Button variant="primary" size="lg" onClick={search}>
                     검색
                 </Button>
@@ -218,8 +236,45 @@ function Home() {
                         null
                 }
                 {
-                    radioVal === '던파' ?
-                        <Card.Img variant="top" src="holder.js/100px180" />
+                    dnfData !== null && dnfData !== undefined && radioVal === '던파' ?
+                        <>
+                            <div style={{ display: 'flex', justifyContent: 'center', marginTop: '30px' }}>
+                                <Card style={{ width: '18rem' }}>
+                                    <Card.Img variant="top" src={`https://img-api.neople.co.kr/df/servers/${dnfData.serverId}/characters/${dnfData.characterId}?zoom=1`} style={{ marginTop: '-5rem' }}/>
+                                    <Card.Body>
+                                        <div className="d-flex justify-content-between align-items-center mb-3">
+                                            <Card.Title className="mb-0">{dnfData?.characterName}</Card.Title>
+                                            {
+                                                isLogin ?
+                                                    <Button
+                                                        variant={dnfData.favorite ? "warning" : "outline-warning"}
+                                                        size="sm"
+                                                        onClick={() => favoriteUpdate(2,dnfData.characterId)}
+                                                    >
+                                                        {dnfData.favorite ? "⭐" : "☆"}
+                                                    </Button>
+                                                    :
+                                                    null
+                                            }
+                                        </div>
+                                        <div className="d-flex flex-column gap-2">
+                                            <div className="d-flex justify-content-between">
+                                                <span className="fw-bold">레벨:</span>
+                                                <span>{dnfData?.level}</span>
+                                            </div>
+                                            <div className="d-flex justify-content-between">
+                                                <span className="fw-bold">직업:</span>
+                                                <span>{dnfData?.jobGrowName}</span>
+                                            </div>
+                                            <div className="d-flex justify-content-between">
+                                                <span className="fw-bold">명성:</span>
+                                                <span>{dnfData?.fame || '기록없음'}</span>
+                                            </div>
+                                        </div>
+                                    </Card.Body>
+                                </Card>
+                            </div>
+                        </>
                         :
                         null
                 }

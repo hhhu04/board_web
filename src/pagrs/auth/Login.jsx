@@ -1,7 +1,7 @@
 import Col from 'react-bootstrap/Col';
 import Form from 'react-bootstrap/Form';
 import Row from 'react-bootstrap/Row';
-import {useEffect, useState} from "react";
+import {useCallback, useEffect, useState} from "react";
 import {Button} from "react-bootstrap";
 import {useMutation} from "@tanstack/react-query";
 import {setAccessToken, setRefreshToken} from "../../helpers/AuthHelper.jsx";
@@ -31,6 +31,13 @@ function Login(){
         setShowPop(false)
     }
 
+    const showAlert = useCallback((message, onConfirm = closePop) => {
+        setPopMessage(message);
+        setType('alert');
+        setShowPop(true);
+        setCallback(() => onConfirm); // 함수를 반환하는 함수로 설정
+    }, [closePop]);
+
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -43,12 +50,12 @@ function Login(){
     const login = ()  => {
 
         if(!formData.userId){
-            alert('아이디를 입력해주세요')
+            showAlert('아이디를 입력해주세요')
             return
         }
 
         if(!formData.password){
-            alert('비밀번호를 입력해주세요')
+            showAlert('비밀번호를 입력해주세요')
             return;
         }
 
