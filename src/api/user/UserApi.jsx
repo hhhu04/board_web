@@ -13,3 +13,7 @@ export const logoutApi = async (token) => {
 export const getUserInfo = async () => {
     return ApiService.get('/api/user/info')
 }
+
+export const joinUser = async (params) => {
+    return ApiService.post('/api/user/join', params)
+}
