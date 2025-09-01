@@ -3,7 +3,7 @@ name: Production S3 Deploy and CloudFront Invalidation
 on:
   push:
     branches:
-      - prod
+      - main
 
 env:
   NODE_VERSION: '22'
