@@ -5,6 +5,7 @@ import {useMutation, useQuery} from "@tanstack/react-query";
 import {getCypherInfo, getDnfInfo, mergeFavorites} from "../api/game/GameApi.jsx";
 import Alert from "../components/Alert.jsx";
 import {UserStore} from "../store/UserStore.jsx";
+import {useNavigate} from "react-router-dom";
 
 
 function Home() {
@@ -22,6 +23,7 @@ function Home() {
 
     const { isLogin } = UserStore((state) => state);
 
+    const nav = useNavigate();
 
     const closePop = () => {
         setShowPop(false)
@@ -138,6 +140,10 @@ function Home() {
         }
     })
 
+    const moveDetail = (key) => {
+        nav(`/detail/${radioVal}/${key}`)
+    }
+
 
     return(
         <>
@@ -196,7 +202,7 @@ function Home() {
                     cyphersData !== null && cyphersData !== undefined && radioVal === '사퍼' ?
                         <>
                             <div style={{ display: 'flex', justifyContent: 'center', marginTop: '30px' }}>
-                                <Card style={{ width: '18rem' }}>
+                                <Card style={{ width: '18rem' }} onClick={() => moveDetail(cyphersData.playerId)}>
                                     <Card.Img variant="top" src={`https://img-api.neople.co.kr/cy/characters/${cyphersData.represent.characterId}?zoom=3`}/>
                                     <Card.Body>
                                         <div className="d-flex justify-content-between align-items-center mb-3">
@@ -206,9 +212,13 @@ function Home() {
                                                     <Button
                                                         variant={cyphersData.favorite ? "warning" : "outline-warning"}
                                                         size="sm"
-                                                        onClick={() => favoriteUpdate(2,cyphersData.playerId)}
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            favoriteUpdate(2,cyphersData.playerId);
+                                                        }}
                                                     >
                                                         {cyphersData.favorite ? "⭐" : "☆"}
+
                                                     </Button>
                                                     :
                                                     null
@@ -249,7 +259,10 @@ function Home() {
                                                     <Button
                                                         variant={dnfData.favorite ? "warning" : "outline-warning"}
                                                         size="sm"
-                                                        onClick={() => favoriteUpdate(2,dnfData.characterId)}
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            favoriteUpdate(2,dnfData.characterId);
+                                                        }}
                                                     >
                                                         {dnfData.favorite ? "⭐" : "☆"}
                                                     </Button>

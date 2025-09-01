@@ -4,6 +4,14 @@ export const getCypherInfo = async (params) => {
     return ApiService.get('/api/game/cyphers', params)
 }
 
+export const getCyphersMatch = async (params) => {
+    return ApiService.get('/api/game/cyphers/match', params)
+}
+
+export const getCyphersMatchList = async (param) => {
+    return ApiService.get(`/api/game/cyphers/match${param}`)
+}
+
 export const getDnfInfo = async (params) => {
     return ApiService.get('/api/game/dnf', params)
 }
