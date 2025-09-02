@@ -16,6 +16,11 @@ export const getDnfInfo = async (params) => {
     return ApiService.get('/api/game/dnf', params)
 }
 
+export const getLolInfo = async (params) => {
+    return ApiService.get('/api/game/lol', params)
+}
+
+
 export const mergeFavorites = async (params) => {
     return ApiService.post('/api/game/favorites', {params})
 }
