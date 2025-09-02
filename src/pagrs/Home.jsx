@@ -2,7 +2,7 @@ import Form from "react-bootstrap/Form";
 import {Button, Card} from "react-bootstrap";
 import {useCallback, useEffect, useState} from "react";
 import {useMutation, useQuery} from "@tanstack/react-query";
-import {getCypherInfo, getDnfInfo, mergeFavorites} from "../api/game/GameApi.jsx";
+import {getCypherInfo, getDnfInfo, getLolInfo, mergeFavorites} from "../api/game/GameApi.jsx";
 import Alert from "../components/Alert.jsx";
 import {UserStore} from "../store/UserStore.jsx";
 import {useNavigate} from "react-router-dom";
@@ -41,6 +41,7 @@ function Home() {
         setNicknameVal('');
         removeCyphersData?.();
         removeDnfData?.();
+        removeLolData?.();
     };
 
     const search = () => {
@@ -69,6 +70,18 @@ function Home() {
                     characterName: nicknameVal
                 })
                 void dnfSearch();
+                break;
+            case '롤':
+                if(nicknameVal.indexOf('#') === -1){
+                    showAlert('플레이어 이름 + #태그 를 입력해주세요. ')
+                    return;
+                }
+                setParams({
+                    gameName: nicknameVal.split('#')[0],
+                    tag: nicknameVal.split('#')[1]
+                })
+                console.log(params)
+                void lolSearch();
                 break;
 
         }
@@ -99,6 +112,17 @@ function Home() {
         enabled: false
     })
 
+    const {data:lolData, refetch: lolSearch, remove: removeLolData} = useQuery({
+        queryKey: ["LOL_INFO"],
+        queryFn: () => {
+            if (!params.gameName || !params.tag) {
+                return null;
+            }
+            return getLolInfo(params);
+        },
+        enabled: false
+    })
+
 
     const favoriteUpdate = (game_type, game_key) => {
         if(!isLogin){
@@ -125,6 +149,7 @@ function Home() {
                         switch (radioVal){
                             case '사퍼':void cyphersSearch();break;
                             case '던파':void dnfSearch();break;
+                            case '롤':void lolSearch();break;
 
                         }
                     }else{
@@ -292,8 +317,40 @@ function Home() {
                         null
                 }
                 {
-                    radioVal === '롤' ?
-                        <Card.Img variant="top" src="holder.js/100px180" />
+                    lolData !== null && lolData !== undefined && radioVal === '롤' ?
+                        <>
+                            <div style={{ display: 'flex', justifyContent: 'center', marginTop: '30px' }}>
+                                <Card style={{ width: '18rem' }} onClick={() => moveDetail(lolData.puuid)}>
+                                    <Card.Img variant="top" src={`https://ddragon.leagueoflegends.com/cdn/14.23.1/img/profileicon/${lolData.profileIconId}.png`}/>
+                                    <Card.Body>
+                                        <div className="d-flex justify-content-between align-items-center mb-3">
+                                            <Card.Title className="mb-0">{nicknameVal}</Card.Title>
+                                            {
+                                                isLogin ?
+                                                    <Button
+                                                        variant={lolData.favorite ? "warning" : "outline-warning"}
+                                                        size="sm"
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            favoriteUpdate(3,lolData.puuid);
+                                                        }}
+                                                    >
+                                                        {lolData.favorite ? "⭐" : "☆"}
+                                                    </Button>
+                                                    :
+                                                    null
+                                            }
+                                        </div>
+                                        <div className="d-flex flex-column gap-2">
+                                            <div className="d-flex justify-content-between">
+                                                <span className="fw-bold">레벨:</span>
+                                                <span>{lolData?.summonerLevel}</span>
+                                            </div>
+                                        </div>
+                                    </Card.Body>
+                                </Card>
+                            </div>
+                        </>
                         :
                         null
                 }
