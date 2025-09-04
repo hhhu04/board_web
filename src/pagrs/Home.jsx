@@ -271,46 +271,48 @@ function Home() {
                         null
                 }
                 {
-                    dnfData !== null && dnfData !== undefined && radioVal === '던파' ?
+                    dnfData && dnfData.rows && dnfData.rows.length > 0 && radioVal === '던파' ?
                         <>
-                            <div style={{ display: 'flex', justifyContent: 'center', marginTop: '30px' }}>
-                                <Card style={{ width: '18rem' }}>
-                                    <Card.Img variant="top" src={`https://img-api.neople.co.kr/df/servers/${dnfData.serverId}/characters/${dnfData.characterId}?zoom=1`} style={{ marginTop: '-5rem' }}/>
-                                    <Card.Body>
-                                        <div className="d-flex justify-content-between align-items-center mb-3">
-                                            <Card.Title className="mb-0">{dnfData?.characterName}</Card.Title>
-                                            {
-                                                isLogin ?
-                                                    <Button
-                                                        variant={dnfData.favorite ? "warning" : "outline-warning"}
-                                                        size="sm"
-                                                        onClick={(e) => {
-                                                            e.stopPropagation();
-                                                            favoriteUpdate(2,dnfData.characterId);
-                                                        }}
-                                                    >
-                                                        {dnfData.favorite ? "⭐" : "☆"}
-                                                    </Button>
-                                                    :
-                                                    null
-                                            }
-                                        </div>
-                                        <div className="d-flex flex-column gap-2">
-                                            <div className="d-flex justify-content-between">
-                                                <span className="fw-bold">레벨:</span>
-                                                <span>{dnfData?.level}</span>
+                            <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '20px', marginTop: '30px' }}>
+                                {dnfData.rows.map((character, index) => (
+                                    <Card key={index} style={{ width: '18rem' }}>
+                                        <Card.Img variant="top" src={`https://img-api.neople.co.kr/df/servers/${character.serverId}/characters/${character.characterId}?zoom=1`} style={{ marginTop: '-5rem' }}/>
+                                        <Card.Body>
+                                            <div className="d-flex justify-content-between align-items-center mb-3">
+                                                <Card.Title className="mb-0">{character?.characterName}</Card.Title>
+                                                {
+                                                    isLogin ?
+                                                        <Button
+                                                            variant={character.favorite ? "warning" : "outline-warning"}
+                                                            size="sm"
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                favoriteUpdate(2, character.characterId);
+                                                            }}
+                                                        >
+                                                            {character.favorite ? "⭐" : "☆"}
+                                                        </Button>
+                                                        :
+                                                        null
+                                                }
                                             </div>
-                                            <div className="d-flex justify-content-between">
-                                                <span className="fw-bold">직업:</span>
-                                                <span>{dnfData?.jobGrowName}</span>
+                                            <div className="d-flex flex-column gap-2">
+                                                <div className="d-flex justify-content-between">
+                                                    <span className="fw-bold">레벨:</span>
+                                                    <span>{character?.level}</span>
+                                                </div>
+                                                <div className="d-flex justify-content-between">
+                                                    <span className="fw-bold">직업:</span>
+                                                    <span>{character?.jobGrowName}</span>
+                                                </div>
+                                                <div className="d-flex justify-content-between">
+                                                    <span className="fw-bold">명성:</span>
+                                                    <span>{character?.fame || '기록없음'}</span>
+                                                </div>
                                             </div>
-                                            <div className="d-flex justify-content-between">
-                                                <span className="fw-bold">명성:</span>
-                                                <span>{dnfData?.fame || '기록없음'}</span>
-                                            </div>
-                                        </div>
-                                    </Card.Body>
-                                </Card>
+                                        </Card.Body>
+                                    </Card>
+                                ))}
                             </div>
                         </>
                         :
