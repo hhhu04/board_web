@@ -4,6 +4,7 @@ import {getCyphersMatch, getDnfDetail, getDnfTimeline} from "../../api/game/Game
 
 const  Dnf = ({ gameKey, subVal }) => {
     const [activeTab, setActiveTab] = useState('timeline');
+    const [activeInfoTab, setActiveInfoTab] = useState('stats');
 
     const {data:characterData, refetch, remove} = useQuery({
         queryKey: ["DNF_CHARACTER", gameKey, subVal],
@@ -39,16 +40,19 @@ const  Dnf = ({ gameKey, subVal }) => {
                 <div style={{ backgroundColor: '#f5f5f5', padding: '20px', borderRadius: '8px', marginBottom: '20px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
                         <img 
-                            src={`https://img-api.neople.co.kr/df/servers/${subVal}/characters/${gameKey}?zoom=1`}
+                            src={`https://img-api.neople.co.kr/df/servers/${subVal}/characters/${gameKey}?zoom=3`}
                             alt={characterData.character.characterName}
-                            style={{ width: '100px', height: '100px', borderRadius: '8px' }}
+                            style={{ width: '300px', height: '300px', borderRadius: '8px' }}
                         />
-                        <div>
-                            <h2 style={{ margin: '0 0 10px 0', color: '#333' }}>{characterData.character.characterName}</h2>
-                            <div style={{ display: 'flex', gap: '15px' }}>
-                                <span><strong>레벨:</strong> {characterData.character.level}</span>
-                                <span><strong>직업:</strong> {characterData.character.jobGrowName}</span>
-                                <span><strong>길드:</strong> {characterData.character.guildName || '없음'}</span>
+                        <div style={{ flex: 1 }}>
+                            <h2 style={{ margin: '0 0 15px 0', color: '#333' }}>{characterData.character.characterName}</h2>
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '10px' }}>
+                                <div><strong>레벨:</strong> {characterData.character.level}</div>
+                                <div><strong>직업:</strong> {characterData.character.jobName}</div>
+                                <div><strong>전직:</strong> {characterData.character.jobGrowName}</div>
+                                <div><strong>길드:</strong> {characterData.character.guildName || '없음'}</div>
+                                <div><strong>명성:</strong> {characterData.character.fame?.toLocaleString() || '0'}</div>
+                                <div><strong>서버:</strong> {characterData.character.serverId}</div>
                             </div>
                         </div>
                     </div>
@@ -264,56 +268,436 @@ const  Dnf = ({ gameKey, subVal }) => {
 
             {activeTab === 'info' && characterData && (
                 <div style={{ backgroundColor: 'white', padding: '25px', borderRadius: '8px', border: '1px solid #ddd' }}>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '20px' }}>
-                        {/* 기본 정보 */}
-                        <div style={{ backgroundColor: '#f8f9fa', padding: '15px', borderRadius: '6px' }}>
-                            <h4 style={{ margin: '0 0 15px 0', color: '#495057', borderBottom: '2px solid #dee2e6', paddingBottom: '5px' }}>기본 정보</h4>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                                <div><strong>캐릭터명:</strong> {characterData.character?.characterName}</div>
-                                <div><strong>레벨:</strong> {characterData.character?.level}</div>
-                                <div><strong>직업:</strong> {characterData.character?.jobName}</div>
-                                <div><strong>전직:</strong> {characterData.character?.jobGrowName}</div>
-                                <div><strong>길드:</strong> {characterData.character?.guildName || '없음'}</div>
-                            </div>
-                        </div>
-
-                        {/* 능력치 */}
-                        {characterData.status && (
-                            <div style={{ backgroundColor: '#f8f9fa', padding: '15px', borderRadius: '6px' }}>
-                                <h4 style={{ margin: '0 0 15px 0', color: '#495057', borderBottom: '2px solid #dee2e6', paddingBottom: '5px' }}>능력치</h4>
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                                    <div><strong>힘:</strong> {characterData.status.strength || 0}</div>
-                                    <div><strong>체력:</strong> {characterData.status.vitality || 0}</div>
-                                    <div><strong>정신력:</strong> {characterData.status.spirit || 0}</div>
-                                    <div><strong>지능:</strong> {characterData.status.intelligence || 0}</div>
-                                </div>
-                            </div>
-                        )}
-
-                        {/* 장비 */}
-                        {characterData.equipment && (
-                            <div style={{ backgroundColor: '#f8f9fa', padding: '15px', borderRadius: '6px' }}>
-                                <h4 style={{ margin: '0 0 15px 0', color: '#495057', borderBottom: '2px solid #dee2e6', paddingBottom: '5px' }}>주요 장비</h4>
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                                    {characterData.equipment.slice(0, 5).map((item, idx) => (
-                                        <div key={idx} style={{ padding: '5px', backgroundColor: 'white', borderRadius: '4px', fontSize: '13px' }}>
-                                            <strong>{item.slotName}:</strong> {item.itemName || '장착 없음'}
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-                        )}
-
-                        {/* 기타 정보 */}
-                        <div style={{ backgroundColor: '#f8f9fa', padding: '15px', borderRadius: '6px' }}>
-                            <h4 style={{ margin: '0 0 15px 0', color: '#495057', borderBottom: '2px solid #dee2e6', paddingBottom: '5px' }}>기타</h4>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                                <div><strong>명성:</strong> {characterData.character?.fame || 0}</div>
-                                <div><strong>서버:</strong> {characterData.character?.serverId}</div>
-                                <div><strong>캐릭터 ID:</strong> {characterData.character?.characterId}</div>
-                            </div>
-                        </div>
+                    {/* Sub Tab Navigation */}
+                    <div style={{ borderBottom: '1px solid #ddd', marginBottom: '20px' }}>
+                        {['stats', 'buffs', 'equipment', 'avatar'].map((tab) => (
+                            <button
+                                key={tab}
+                                onClick={() => setActiveInfoTab(tab)}
+                                style={{
+                                    padding: '8px 16px',
+                                    border: 'none',
+                                    background: activeInfoTab === tab ? '#28a745' : 'transparent',
+                                    color: activeInfoTab === tab ? 'white' : '#666',
+                                    cursor: 'pointer',
+                                    borderRadius: '4px',
+                                    marginRight: '5px',
+                                    fontSize: '14px'
+                                }}
+                            >
+                                {tab === 'stats' ? '스탯' : 
+                                 tab === 'buffs' ? '버프' : 
+                                 tab === 'equipment' ? '장비' : '아바타'}
+                            </button>
+                        ))}
                     </div>
+
+                    {/* Sub Tab Content */}
+                    {activeInfoTab === 'stats' && characterData.status && (
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '15px' }}>
+                            {Object.entries(characterData.status).map(([key, value]) => {
+                                // 값이 객체인 경우 객체의 내용을 표시
+                                if (typeof value === 'object' && value !== null) {
+                                    // 객체가 name과 value 속성을 가진 경우
+                                    if (value.name && (value.value !== undefined)) {
+                                        return (
+                                            <div key={key} style={{ 
+                                                backgroundColor: '#f8f9fa', 
+                                                padding: '12px 15px', 
+                                                borderRadius: '6px',
+                                                border: '1px solid #dee2e6'
+                                            }}>
+                                                <div style={{ 
+                                                    display: 'flex', 
+                                                    justifyContent: 'space-between', 
+                                                    alignItems: 'center' 
+                                                }}>
+                                                    <span style={{ 
+                                                        fontSize: '14px', 
+                                                        color: '#495057',
+                                                        fontWeight: '500'
+                                                    }}>
+                                                        {value.name}
+                                                    </span>
+                                                    <span style={{ 
+                                                        fontSize: '14px', 
+                                                        fontWeight: 'bold',
+                                                        color: '#007bff'
+                                                    }}>
+                                                        {typeof value.value === 'number' ? value.value.toLocaleString() : String(value.value)}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        );
+                                    }
+                                    // 다른 형태의 객체는 건너뛰기
+                                    return null;
+                                }
+
+                                // 원시 타입 값들은 기존 방식으로 처리
+                                if (value === null || value === undefined) return null;
+                                
+                                const getStatName = (statKey) => {
+                                    const statNames = {
+                                        strength: '힘',
+                                        vitality: '체력', 
+                                        spirit: '정신력',
+                                        intelligence: '지능',
+                                        physicalAttack: '물리공격력',
+                                        physicalDefense: '물리방어력',
+                                        magicalAttack: '마법공격력',
+                                        magicalDefense: '마법방어력',
+                                        independence: '독립공격력',
+                                        criticalHit: '크리티컬',
+                                        hitRate: '적중률',
+                                        dodgeRate: '회피율',
+                                        moveSpeed: '이동속도',
+                                        attackSpeed: '공격속도',
+                                        castSpeed: '캐스팅속도',
+                                        hpMax: '최대 HP',
+                                        mpMax: '최대 MP',
+                                        hpRegen: 'HP 회복',
+                                        mpRegen: 'MP 회복',
+                                        inventory: '인벤토리 무게'
+                                    };
+                                    return statNames[statKey] || statKey;
+                                };
+                                
+                                return (
+                                    <div key={key} style={{ 
+                                        backgroundColor: '#f8f9fa', 
+                                        padding: '12px 15px', 
+                                        borderRadius: '6px',
+                                        border: '1px solid #dee2e6'
+                                    }}>
+                                        <div style={{ 
+                                            display: 'flex', 
+                                            justifyContent: 'space-between', 
+                                            alignItems: 'center' 
+                                        }}>
+                                            <span style={{ 
+                                                fontSize: '14px', 
+                                                color: '#495057',
+                                                fontWeight: '500'
+                                            }}>
+                                                {getStatName(key)}
+                                            </span>
+                                            <span style={{ 
+                                                fontSize: '14px', 
+                                                fontWeight: 'bold',
+                                                color: '#007bff'
+                                            }}>
+                                                {typeof value === 'number' ? value.toLocaleString() : String(value)}
+                                            </span>
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    )}
+
+                    {activeInfoTab === 'buffs' && characterData && (
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '20px' }}>
+
+                            {/* 아바타 버프 - 공용 스킬 */}
+                            {characterData.buffAvatar?.buff?.skillInfo && (
+                                <div style={{ backgroundColor: '#f8f9fa', padding: '20px', borderRadius: '8px', border: '1px solid #dee2e6', gridColumn: '1 / -1' }}>
+                                    <div style={{ 
+                                        backgroundColor: 'white', 
+                                        padding: '15px', 
+                                        borderRadius: '6px',
+                                        border: '1px solid #dee2e6',
+                                        textAlign: 'center'
+                                    }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', marginBottom: '8px' }}>
+                                            <div style={{ 
+                                                width: '8px', 
+                                                height: '8px', 
+                                                backgroundColor: '#e91e63', 
+                                                borderRadius: '50%' 
+                                            }} />
+                                            <span style={{ fontWeight: 'bold', fontSize: '16px', color: '#e91e63' }}>
+                                                {characterData.buffAvatar.buff.skillInfo.name}
+                                            </span>
+                                        </div>
+                                        <div style={{ fontSize: '14px', color: '#666' }}>
+                                            레벨: {characterData.buffAvatar.buff.skillInfo.option?.level || 0}
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* 아바타 버프 */}
+                            {characterData.buffAvatar && (
+                                <div style={{ backgroundColor: '#f8f9fa', padding: '20px', borderRadius: '8px', border: '1px solid #dee2e6' }}>
+                                    <h4 style={{ margin: '0 0 15px 0', color: '#495057', borderBottom: '2px solid #dee2e6', paddingBottom: '8px' }}>
+                                        아바타 버프
+                                    </h4>
+                                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '15px' }}>
+                                        {/* 아바타 아이템들 */}
+                                        {characterData.buffAvatar.buff?.avatar && Array.isArray(characterData.buffAvatar.buff.avatar) && 
+                                         characterData.buffAvatar.buff.avatar.map((item, idx) => (
+                                            <div key={idx} style={{ 
+                                                backgroundColor: 'white', 
+                                                padding: '15px', 
+                                                borderRadius: '6px',
+                                                border: '1px solid #dee2e6'
+                                            }}>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                                    {item.itemId && (
+                                                        <img 
+                                                            src={`https://img-api.neople.co.kr/df/items/${item.itemId}`}
+                                                            alt={item.itemName}
+                                                            style={{ 
+                                                                width: '32px', 
+                                                                height: '32px',
+                                                                borderRadius: '4px'
+                                                            }}
+                                                            onError={(e) => {
+                                                                e.target.style.display = 'none';
+                                                            }}
+                                                        />
+                                                    )}
+                                                    <div style={{ flex: 1 }}>
+                                                        <div style={{ fontWeight: 'bold', fontSize: '14px', color: '#e91e63' }}>
+                                                            {item.slotName}
+                                                        </div>
+                                                        <div style={{ fontSize: '13px', color: '#666' }}>
+                                                            {item.itemName || '아바타 없음'}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* 크리처 버프 */}
+                            {characterData.buffCreature && (
+                                <div style={{ backgroundColor: '#f8f9fa', padding: '20px', borderRadius: '8px', border: '1px solid #dee2e6' }}>
+                                    <h4 style={{ margin: '0 0 15px 0', color: '#495057', borderBottom: '2px solid #dee2e6', paddingBottom: '8px' }}>
+                                        크리처 버프
+                                    </h4>
+                                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '15px' }}>
+                                        {characterData.buffCreature.buff.creature && Array.isArray(characterData.buffCreature.buff.creature) &&
+                                            characterData.buffCreature.buff.creature.map((item, idx) => (
+                                                <div key={idx} style={{
+                                                    backgroundColor: 'white',
+                                                    padding: '15px',
+                                                    borderRadius: '6px',
+                                                    border: '1px solid #dee2e6'
+                                                }}>
+                                                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                                        {item.itemId && (
+                                                            <img
+                                                                src={`https://img-api.neople.co.kr/df/items/${item.itemId}`}
+                                                                alt={item.itemName}
+                                                                style={{
+                                                                    width: '32px',
+                                                                    height: '32px',
+                                                                    borderRadius: '4px'
+                                                                }}
+                                                                onError={(e) => {
+                                                                    e.target.style.display = 'none';
+                                                                }}
+                                                            />
+                                                        )}
+                                                        <div style={{ flex: 1 }}>
+                                                            <div style={{ fontWeight: 'bold', fontSize: '14px', color: '#e91e63' }}>
+                                                                {item.slotName}
+                                                            </div>
+                                                            <div style={{ fontSize: '13px', color: '#666' }}>
+                                                                {item.itemName || '아바타 없음'}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* 장비 버프 */}
+                            {characterData.buffEquipment && (
+                                <div style={{ backgroundColor: '#f8f9fa', padding: '20px', borderRadius: '8px', border: '1px solid #dee2e6', gridColumn: 'span 2' }}>
+                                    <h4 style={{ margin: '0 0 15px 0', color: '#495057', borderBottom: '2px solid #dee2e6', paddingBottom: '8px' }}>
+                                        장비 버프
+                                    </h4>
+                                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '15px' }}>
+                                        {characterData.buffEquipment.buff.equipment && Array.isArray(characterData.buffEquipment.buff.equipment) &&
+                                            characterData.buffEquipment.buff.equipment.map((item, idx) => (
+                                                <div key={idx} style={{
+                                                    backgroundColor: 'white',
+                                                    padding: '15px',
+                                                    borderRadius: '6px',
+                                                    border: '1px solid #dee2e6'
+                                                }}>
+                                                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                                        {item.itemId && (
+                                                            <img
+                                                                src={`https://img-api.neople.co.kr/df/items/${item.itemId}`}
+                                                                alt={item.itemName}
+                                                                style={{
+                                                                    width: '32px',
+                                                                    height: '32px',
+                                                                    borderRadius: '4px'
+                                                                }}
+                                                                onError={(e) => {
+                                                                    e.target.style.display = 'none';
+                                                                }}
+                                                            />
+                                                        )}
+                                                        <div style={{ flex: 1 }}>
+                                                            <div style={{ fontWeight: 'bold', fontSize: '14px', color: '#e91e63' }}>
+                                                                {item.slotName}
+                                                            </div>
+                                                            <div style={{ fontSize: '13px', color: '#666' }}>
+                                                                {item.itemName || '아바타 없음'}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* 버프가 없는 경우 */}
+                            {(!characterData.buffAvatar || characterData.buffAvatar.length === 0) &&
+                             (!characterData.buffCreature || characterData.buffCreature.length === 0) &&
+                             (!characterData.buffEquipment || characterData.buffEquipment.length === 0) && (
+                                <div style={{ 
+                                    gridColumn: '1 / -1', 
+                                    textAlign: 'center', 
+                                    padding: '40px', 
+                                    color: '#666' 
+                                }}>
+                                    활성화된 버프가 없습니다.
+                                </div>
+                            )}
+                        </div>
+                    )}
+
+                    {activeInfoTab === 'equipment' && characterData.equipment && (
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '15px' }}>
+                            {characterData.equipment.map((item, idx) => (
+                                <div key={idx} style={{ 
+                                    backgroundColor: '#f8f9fa', 
+                                    padding: '15px', 
+                                    borderRadius: '6px',
+                                    border: '1px solid #dee2e6'
+                                }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                        {item.itemId && (
+                                            <img 
+                                                src={`https://img-api.neople.co.kr/df/items/${item.itemId}`}
+                                                alt={item.itemName}
+                                                style={{ 
+                                                    width: '32px', 
+                                                    height: '32px',
+                                                    borderRadius: '4px'
+                                                }}
+                                                onError={(e) => {
+                                                    e.target.style.display = 'none';
+                                                }}
+                                            />
+                                        )}
+                                        <div style={{ flex: 1 }}>
+                                            <div style={{ fontWeight: 'bold', fontSize: '14px' }}>{item.slotName}</div>
+                                            <div style={{ fontSize: '13px', color: '#666', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                                <span>{item.itemName || '장착 없음'}</span>
+                                                {item.reinforce && item.reinforce > 0 && (
+                                                    <span style={{
+                                                        backgroundColor: '#e91e63',
+                                                        color: 'white',
+                                                        fontSize: '11px',
+                                                        fontWeight: 'bold',
+                                                        padding: '1px 6px',
+                                                        borderRadius: '4px'
+                                                    }}>
+                                                        +{item.reinforce}
+                                                    </span>
+                                                )}
+                                                {item.amplificationName && (
+                                                    <span style={{
+                                                        backgroundColor: '#e91e63',
+                                                        color: 'white',
+                                                        fontSize: '11px',
+                                                        fontWeight: 'bold',
+                                                        padding: '1px 6px',
+                                                        borderRadius: '4px'
+                                                    }}>
+                                                        {item.amplificationName}
+                                                    </span>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+
+                    {activeInfoTab === 'avatar' && characterData.avatar && (
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '15px' }}>
+                            {characterData.avatar.map((item, idx) => (
+                                <div key={idx} style={{
+                                    backgroundColor: '#f8f9fa',
+                                    padding: '15px',
+                                    borderRadius: '6px',
+                                    border: '1px solid #dee2e6'
+                                }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                        {item.itemId && (
+                                            <img
+                                                src={`https://img-api.neople.co.kr/df/items/${item.itemId}`}
+                                                alt={item.itemName}
+                                                style={{
+                                                    width: '32px',
+                                                    height: '32px',
+                                                    borderRadius: '4px'
+                                                }}
+                                                onError={(e) => {
+                                                    e.target.style.display = 'none';
+                                                }}
+                                            />
+                                        )}
+                                        <div style={{ flex: 1 }}>
+                                            <div style={{ fontWeight: 'bold', fontSize: '14px' }}>{item.slotName}</div>
+                                            <div style={{ fontSize: '13px', color: '#666', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                                <span>{item.itemName || '장착 없음'}</span>
+                                                {item.reinforce && item.reinforce > 0 && (
+                                                    <span style={{
+                                                        backgroundColor: '#e91e63',
+                                                        color: 'white',
+                                                        fontSize: '11px',
+                                                        fontWeight: 'bold',
+                                                        padding: '1px 6px',
+                                                        borderRadius: '4px'
+                                                    }}>
+                                                        +{item.reinforce}
+                                                    </span>
+                                                )}
+                                                {item.amplificationName && (
+                                                    <span style={{
+                                                        backgroundColor: '#e91e63',
+                                                        color: 'white',
+                                                        fontSize: '11px',
+                                                        fontWeight: 'bold',
+                                                        padding: '1px 6px',
+                                                        borderRadius: '4px'
+                                                    }}>
+                                                        {item.amplificationName}
+                                                    </span>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    )}
                 </div>
             )}
         </div>
