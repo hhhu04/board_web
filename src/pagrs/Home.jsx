@@ -165,8 +165,23 @@ function Home() {
         }
     })
 
-    const moveDetail = (key) => {
-        nav(`/detail/${radioVal}/${key}`)
+    const moveDetail = (key, subVal = '') => {
+        let game = ''
+        if(radioVal === '던파'){
+            game = 'dnf'
+        }
+        else if(radioVal === '사퍼'){
+            game = 'cyphers'
+        }
+        else if(radioVal === '롤'){
+            game = 'lol'
+        }
+
+        let url  = `/detail/${game}/${key}`
+        if(subVal !== ''){
+            url += `?subVal=${subVal}`
+        }
+        nav(url)
     }
 
 
@@ -275,7 +290,7 @@ function Home() {
                         <>
                             <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '20px', marginTop: '30px' }}>
                                 {dnfData.rows.map((character, index) => (
-                                    <Card key={index} style={{ width: '18rem' }}>
+                                    <Card key={index} style={{ width: '18rem' }} onClick={() => moveDetail(character.characterId, character.serverId)}>
                                         <Card.Img variant="top" src={`https://img-api.neople.co.kr/df/servers/${character.serverId}/characters/${character.characterId}?zoom=1`} style={{ marginTop: '-5rem' }}/>
                                         <Card.Body>
                                             <div className="d-flex justify-content-between align-items-center mb-3">
