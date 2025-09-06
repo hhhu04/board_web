@@ -16,6 +16,14 @@ export const getDnfInfo = async (params) => {
     return ApiService.get('/api/game/dnf', params)
 }
 
+export const getDnfTimeline = async (params) => {
+    return ApiService.get('/api/game/dnf/timeline', params)
+}
+
+export const getDnfDetail = async (params) => {
+    return ApiService.get('/api/game/dnf/detail', params)
+}
+
 export const getLolInfo = async (params) => {
     return ApiService.get('/api/game/lol', params)
 }
