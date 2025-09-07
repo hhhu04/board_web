@@ -609,7 +609,7 @@ const  Dnf = ({ gameKey, subVal }) => {
                                                 <span>{item.itemName || '장착 없음'}</span>
                                                 {item.reinforce && item.reinforce > 0 && (
                                                     <span style={{
-                                                        backgroundColor: '#e91e63',
+                                                        backgroundColor: item.amplificationName !== null ? '#e91e63' : '#2196f3',
                                                         color: 'white',
                                                         fontSize: '11px',
                                                         fontWeight: 'bold',

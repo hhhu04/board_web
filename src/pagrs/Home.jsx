@@ -302,7 +302,7 @@ function Home() {
                                                             size="sm"
                                                             onClick={(e) => {
                                                                 e.stopPropagation();
-                                                                favoriteUpdate(2, character.characterId);
+                                                                favoriteUpdate(1, character.characterId);
                                                             }}
                                                         >
                                                             {character.favorite ? "⭐" : "☆"}
