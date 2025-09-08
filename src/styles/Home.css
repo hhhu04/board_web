@@ -1,0 +1,144 @@
+/* Home 페이지 스타일 */
+
+/* 게임 카드 컨테이너 */
+.game-card-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 30px;
+    padding: 0 15px;
+}
+
+.game-card-container.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+}
+
+/* 게임 카드 공통 스타일 */
+.game-card {
+    width: 100%;
+    max-width: 18rem;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.game-card.single {
+    max-width: 18rem;
+}
+
+.game-card.grid-item {
+    width: 100%;
+    max-width: none;
+}
+
+.game-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+/* 던파 캐릭터 이미지 */
+.dnf-character-image {
+    margin-top: -5rem;
+}
+
+/* 카드 헤더 */
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.card-title {
+    margin: 0;
+    font-size: 1.1rem;
+    word-break: break-word;
+}
+
+/* 카드 정보 리스트 */
+.card-info-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.card-info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.card-info-row:last-child {
+    border-bottom: none;
+}
+
+.card-info-label {
+    font-weight: bold;
+    color: #555;
+    font-size: 0.9rem;
+    min-width: 50px;
+}
+
+.card-info-value {
+    color: #333;
+    font-size: 0.9rem;
+    text-align: right;
+    word-break: break-word;
+}
+
+/* 모바일 반응형 */
+@media (max-width: 768px) {
+    .game-card-container {
+        margin-top: 20px;
+        padding: 0 10px;
+    }
+    
+    .game-card-container.grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+    
+    .card-title {
+        font-size: 1rem;
+    }
+    
+    .card-info-label,
+    .card-info-value {
+        font-size: 0.85rem;
+    }
+    
+    .card-header {
+        margin-bottom: 10px;
+    }
+    
+    .card-info-list {
+        gap: 6px;
+    }
+}
+
+@media (max-width: 480px) {
+    .game-card-container {
+        padding: 0 5px;
+    }
+    
+    .game-card-container.grid {
+        gap: 10px;
+    }
+    
+    .card-title {
+        font-size: 0.95rem;
+    }
+    
+    .card-info-label,
+    .card-info-value {
+        font-size: 0.8rem;
+    }
+    
+    .card-info-row {
+        padding: 3px 0;
+    }
+}

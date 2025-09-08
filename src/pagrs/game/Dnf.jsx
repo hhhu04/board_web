@@ -1,6 +1,7 @@
 import {useState} from "react";
 import {useInfiniteQuery, useQuery} from "@tanstack/react-query";
 import {getCyphersMatch, getDnfDetail, getDnfTimeline} from "../../api/game/GameApi.jsx";
+import '../styles/Dnf.css';
 
 const  Dnf = ({ gameKey, subVal }) => {
     const [activeTab, setActiveTab] = useState('timeline');
@@ -34,19 +35,19 @@ const  Dnf = ({ gameKey, subVal }) => {
     })
 
     return (
-        <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif' }}>
+        <div className="dnf-container">
             {/* Character Profile Section */}
             {characterData?.character && (
-                <div style={{ backgroundColor: '#f5f5f5', padding: '20px', borderRadius: '8px', marginBottom: '20px' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+                <div className="character-profile">
+                    <div className="character-header">
                         <img 
                             src={`https://img-api.neople.co.kr/df/servers/${subVal}/characters/${gameKey}?zoom=3`}
                             alt={characterData.character.characterName}
-                            style={{ width: '300px', height: '300px', borderRadius: '8px' }}
+                            className="character-image"
                         />
-                        <div style={{ flex: 1 }}>
-                            <h2 style={{ margin: '0 0 15px 0', color: '#333' }}>{characterData.character.characterName}</h2>
-                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '10px' }}>
+                        <div className="character-info">
+                            <h2 className="character-name">{characterData.character.characterName}</h2>
+                            <div className="character-stats">
                                 <div><strong>레벨:</strong> {characterData.character.level}</div>
                                 <div><strong>직업:</strong> {characterData.character.jobName}</div>
                                 <div><strong>전직:</strong> {characterData.character.jobGrowName}</div>
@@ -60,31 +61,16 @@ const  Dnf = ({ gameKey, subVal }) => {
             )}
 
             {/* Tab Navigation */}
-            <div style={{ borderBottom: '2px solid #ddd', marginBottom: '20px' }}>
+            <div className="tab-navigation">
                 <button
                     onClick={() => setActiveTab('timeline')}
-                    style={{
-                        padding: '10px 20px',
-                        border: 'none',
-                        background: activeTab === 'timeline' ? '#007bff' : 'transparent',
-                        color: activeTab === 'timeline' ? 'white' : '#333',
-                        cursor: 'pointer',
-                        borderRadius: '4px 4px 0 0',
-                        marginRight: '5px'
-                    }}
+                    className={`tab-button ${activeTab === 'timeline' ? 'active' : ''}`}
                 >
                     타임라인
                 </button>
                 <button
                     onClick={() => setActiveTab('info')}
-                    style={{
-                        padding: '10px 20px',
-                        border: 'none',
-                        background: activeTab === 'info' ? '#007bff' : 'transparent',
-                        color: activeTab === 'info' ? 'white' : '#333',
-                        cursor: 'pointer',
-                        borderRadius: '4px 4px 0 0'
-                    }}
+                    className={`tab-button ${activeTab === 'info' ? 'active' : ''}`}
                 >
                     캐릭터 정보
                 </button>
@@ -95,15 +81,15 @@ const  Dnf = ({ gameKey, subVal }) => {
                 <div>
                     {data?.pages.map((page, i) => (
                         page?.rows?.map((item, j) => {
-                            const getItemGradeColor = (grade) => {
+                            const getItemGradeInfo = (grade) => {
                                 switch(grade) {
-                                    case 'COMMON': return { color: '#6c757d', text: '일반' };
-                                    case 'UNCOMMON': return { color: '#28a745', text: '고급' };
-                                    case 'RARE': return { color: '#007bff', text: '레어' };
-                                    case 'EPIC': return { color: '#6f42c1', text: '에픽' };
-                                    case 'LEGENDARY': return { color: '#fd7e14', text: '전설' };
-                                    case 'ARTIFACT': return { color: '#e83e8c', text: '아티팩트' };
-                                    default: return { color: '#6c757d', text: grade || '일반' };
+                                    case 'COMMON': return { className: 'grade-common', text: '일반' };
+                                    case 'UNCOMMON': return { className: 'grade-uncommon', text: '고급' };
+                                    case 'RARE': return { className: 'grade-rare', text: '레어' };
+                                    case 'EPIC': return { className: 'grade-epic', text: '에픽' };
+                                    case 'LEGENDARY': return { className: 'grade-legendary', text: '전설' };
+                                    case 'ARTIFACT': return { className: 'grade-artifact', text: '아티팩트' };
+                                    default: return { className: 'grade-common', text: grade || '일반' };
                                 }
                             };
 
@@ -128,16 +114,9 @@ const  Dnf = ({ gameKey, subVal }) => {
                             };
 
                             return (
-                                <div key={`${i}-${j}`} style={{ 
-                                    backgroundColor: 'white', 
-                                    padding: '20px', 
-                                    marginBottom: '15px', 
-                                    borderRadius: '8px',
-                                    border: '1px solid #ddd',
-                                    boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
-                                }}>
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                <div key={`${i}-${j}`} className="timeline-item">
+                                    <div className="timeline-header">
+                                        <div className="timeline-title">
                                             {(() => {
                                                 const code = item.code;
                                                 let iconSrc = null;
@@ -163,75 +142,42 @@ const  Dnf = ({ gameKey, subVal }) => {
                                                     <img 
                                                         src={iconSrc}
                                                         alt="activity icon"
-                                                        style={{ 
-                                                            width: '24px', 
-                                                            height: '24px',
-                                                            borderRadius: '4px'
-                                                        }}
+                                                        className="activity-icon"
                                                         onError={(e) => {
                                                             e.target.style.display = 'none';
                                                         }}
                                                     />
                                                 );
                                             })()}
-                                            <h4 style={{ margin: 0, color: '#333', fontSize: '16px', fontWeight: 'bold' }}>
+                                            <h4 className="activity-title">
                                                 {getActivityTitle(item)}
                                             </h4>
                                         </div>
-                                        <span style={{ 
-                                            fontSize: '12px', 
-                                            color: '#666', 
-                                            backgroundColor: '#f0f0f0', 
-                                            padding: '4px 8px', 
-                                            borderRadius: '12px'
-                                        }}>
+                                        <span className="timeline-date">
                                             {item.date}
                                         </span>
                                     </div>
                                     
                                     {/* 아이템 정보만 표시 */}
                                     {item.items && item.items.length > 0 && (
-                                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                                        <div className="items-container">
                                             {item.items.map((itemDetail, idx) => {
-                                                const gradeInfo = getItemGradeColor(itemDetail.itemGrade);
+                                                const gradeInfo = getItemGradeInfo(itemDetail.itemGrade);
                                                 return (
-                                                    <div key={idx} style={{ 
-                                                        backgroundColor: '#f8f9fa', 
-                                                        padding: '8px 12px', 
-                                                        borderRadius: '6px', 
-                                                        border: `2px solid ${gradeInfo.color}`,
-                                                        display: 'flex',
-                                                        alignItems: 'center',
-                                                        gap: '8px',
-                                                        minWidth: '140px'
-                                                    }}>
+                                                    <div key={idx} className={`item-card ${gradeInfo.className}`}>
                                                         <img 
                                                             src={`https://img-api.neople.co.kr/df/items/${itemDetail.itemId}`}
                                                             alt={itemDetail.itemName}
-                                                            style={{ 
-                                                                width: '32px', 
-                                                                height: '32px',
-                                                                borderRadius: '4px',
-                                                                border: `1px solid ${gradeInfo.color}`
-                                                            }}
+                                                            className="item-image"
                                                             onError={(e) => {
                                                                 e.target.style.display = 'none';
                                                             }}
                                                         />
-                                                        <div style={{ display: 'flex', flexDirection: 'column' }}>
-                                                            <span style={{ 
-                                                                fontSize: '13px', 
-                                                                fontWeight: 'bold',
-                                                                color: '#333',
-                                                                marginBottom: '2px'
-                                                            }}>
+                                                        <div className="item-details">
+                                                            <span className="item-name">
                                                                 {itemDetail.itemName}
                                                             </span>
-                                                            <span style={{ 
-                                                                fontSize: '11px', 
-                                                                color: gradeInfo.color,
-                                                                fontWeight: 'bold'
-                                                            }}>
+                                                            <span className="item-grade">
                                                                 {gradeInfo.text}
                                                             </span>
                                                         </div>
@@ -248,17 +194,7 @@ const  Dnf = ({ gameKey, subVal }) => {
                         <button
                             onClick={() => fetchNextPage()}
                             disabled={isFetchingNextPage}
-                            style={{
-                                padding: '12px 20px',
-                                backgroundColor: '#007bff',
-                                color: 'white',
-                                border: 'none',
-                                borderRadius: '6px',
-                                cursor: 'pointer',
-                                width: '100%',
-                                fontSize: '14px',
-                                fontWeight: 'bold'
-                            }}
+                            className="load-more-button"
                         >
                             {isFetchingNextPage ? '로딩중...' : '더보기'}
                         </button>
@@ -267,23 +203,14 @@ const  Dnf = ({ gameKey, subVal }) => {
             )}
 
             {activeTab === 'info' && characterData && (
-                <div style={{ backgroundColor: 'white', padding: '25px', borderRadius: '8px', border: '1px solid #ddd' }}>
+                <div className="info-container">
                     {/* Sub Tab Navigation */}
-                    <div style={{ borderBottom: '1px solid #ddd', marginBottom: '20px' }}>
+                    <div className="sub-tab-navigation">
                         {['stats', 'buffs', 'equipment', 'avatar'].map((tab) => (
                             <button
                                 key={tab}
                                 onClick={() => setActiveInfoTab(tab)}
-                                style={{
-                                    padding: '8px 16px',
-                                    border: 'none',
-                                    background: activeInfoTab === tab ? '#28a745' : 'transparent',
-                                    color: activeInfoTab === tab ? 'white' : '#666',
-                                    cursor: 'pointer',
-                                    borderRadius: '4px',
-                                    marginRight: '5px',
-                                    fontSize: '14px'
-                                }}
+                                className={`sub-tab-button ${activeInfoTab === tab ? 'active' : ''}`}
                             >
                                 {tab === 'stats' ? '스탯' : 
                                  tab === 'buffs' ? '버프' : 
@@ -294,7 +221,7 @@ const  Dnf = ({ gameKey, subVal }) => {
 
                     {/* Sub Tab Content */}
                     {activeInfoTab === 'stats' && characterData.status && (
-                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '15px' }}>
+                        <div className="stats-grid">
                             {Object.entries(characterData.status).map(([key, value]) => {
                                 // 값이 객체인 경우 객체의 내용을 표시
                                 if (typeof value === 'object' && value !== null) {
