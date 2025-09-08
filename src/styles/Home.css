@@ -12,6 +12,7 @@
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
     gap: 20px;
+    justify-items: center;
 }
 
 /* 게임 카드 공통 스타일 */
@@ -28,7 +29,7 @@
 
 .game-card.grid-item {
     width: 100%;
-    max-width: none;
+    max-width: 18rem;
 }
 
 .game-card:hover {

@@ -292,9 +292,9 @@ function Home() {
                         <>
                             <div className="game-card-container grid">
                                 {dnfData.rows.map((character, index) => (
-                                    <Card 
+                                    <Card
                                         key={index} 
-                                        className="game-card grid-item" 
+                                        className="game-card grid-item"
                                         onClick={() => moveDetail(character.characterId, character.serverId)}
                                     >
                                         <Card.Img 

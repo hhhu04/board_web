@@ -302,7 +302,7 @@
 /* Buff Sections */
 .buffs-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
     gap: 20px;
 }
 
@@ -330,7 +330,7 @@
 
 .buff-items-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: 15px;
 }
 
@@ -406,7 +406,7 @@
 /* Equipment and Avatar Styles */
 .equipment-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
     gap: 15px;
 }
 
@@ -545,13 +545,28 @@
     }
 
     .buff-items-grid {
-        grid-template-columns: 1fr;
-        gap: 10px;
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 10px !important;
+    }
+
+    .buff-section {
+        padding: 15px;
+        margin-bottom: 15px;
+    }
+
+    .buff-item {
+        padding: 12px;
+        width: 100%;
     }
 
     .equipment-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: 1fr !important;
         gap: 10px;
+    }
+
+    .buffs-grid {
+        grid-template-columns: 1fr !important;
     }
 }
 

@@ -1,7 +1,7 @@
 import {useState} from "react";
 import {useInfiniteQuery, useQuery} from "@tanstack/react-query";
 import {getCyphersMatch, getDnfDetail, getDnfTimeline} from "../../api/game/GameApi.jsx";
-import '../styles/Dnf.css';
+import '../../styles/Dnf.css';
 
 const  Dnf = ({ gameKey, subVal }) => {
     const [activeTab, setActiveTab] = useState('timeline');
@@ -324,181 +324,236 @@ const  Dnf = ({ gameKey, subVal }) => {
                     )}
 
                     {activeInfoTab === 'buffs' && characterData && (
-                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '20px' }}>
-
-                            {/* 아바타 버프 - 공용 스킬 */}
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(300px, 100%), 1fr))', gap: '15px' }}>
+                            {/* 공용 스킬 */}
                             {characterData.buffAvatar?.buff?.skillInfo && (
-                                <div style={{ backgroundColor: '#f8f9fa', padding: '20px', borderRadius: '8px', border: '1px solid #dee2e6', gridColumn: '1 / -1' }}>
-                                    <div style={{ 
-                                        backgroundColor: 'white', 
-                                        padding: '15px', 
-                                        borderRadius: '6px',
-                                        border: '1px solid #dee2e6',
-                                        textAlign: 'center'
-                                    }}>
-                                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', marginBottom: '8px' }}>
-                                            <div style={{ 
-                                                width: '8px', 
-                                                height: '8px', 
-                                                backgroundColor: '#e91e63', 
-                                                borderRadius: '50%' 
-                                            }} />
-                                            <span style={{ fontWeight: 'bold', fontSize: '16px', color: '#e91e63' }}>
+                                <div style={{ 
+                                    backgroundColor: '#f8f9fa', 
+                                    padding: '15px', 
+                                    borderRadius: '6px',
+                                    border: '1px solid #dee2e6',
+                                    overflow: 'hidden',
+                                    width: '100%',
+                                    boxSizing: 'border-box'
+                                }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                        <div style={{ 
+                                            width: '32px', 
+                                            height: '32px', 
+                                            backgroundColor: '#e91e63', 
+                                            borderRadius: '4px',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            color: 'white',
+                                            fontSize: '12px',
+                                            fontWeight: 'bold'
+                                        }}>
+                                            스킬
+                                        </div>
+                                        <div style={{ flex: 1, minWidth: 0, overflow: 'hidden' }}>
+                                            <div style={{ fontWeight: 'bold', fontSize: '14px', marginBottom: '4px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>공용 스킬</div>
+                                            <div style={{ fontSize: '12px', color: '#666', marginBottom: '4px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                                                 {characterData.buffAvatar.buff.skillInfo.name}
-                                            </span>
-                                        </div>
-                                        <div style={{ fontSize: '14px', color: '#666' }}>
-                                            레벨: {characterData.buffAvatar.buff.skillInfo.option?.level || 0}
-                                        </div>
-                                    </div>
-                                </div>
-                            )}
-
-                            {/* 아바타 버프 */}
-                            {characterData.buffAvatar && (
-                                <div style={{ backgroundColor: '#f8f9fa', padding: '20px', borderRadius: '8px', border: '1px solid #dee2e6' }}>
-                                    <h4 style={{ margin: '0 0 15px 0', color: '#495057', borderBottom: '2px solid #dee2e6', paddingBottom: '8px' }}>
-                                        아바타 버프
-                                    </h4>
-                                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '15px' }}>
-                                        {/* 아바타 아이템들 */}
-                                        {characterData.buffAvatar.buff?.avatar && Array.isArray(characterData.buffAvatar.buff.avatar) && 
-                                         characterData.buffAvatar.buff.avatar.map((item, idx) => (
-                                            <div key={idx} style={{ 
-                                                backgroundColor: 'white', 
-                                                padding: '15px', 
-                                                borderRadius: '6px',
-                                                border: '1px solid #dee2e6'
-                                            }}>
-                                                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                                                    {item.itemId && (
-                                                        <img 
-                                                            src={`https://img-api.neople.co.kr/df/items/${item.itemId}`}
-                                                            alt={item.itemName}
-                                                            style={{ 
-                                                                width: '32px', 
-                                                                height: '32px',
-                                                                borderRadius: '4px'
-                                                            }}
-                                                            onError={(e) => {
-                                                                e.target.style.display = 'none';
-                                                            }}
-                                                        />
-                                                    )}
-                                                    <div style={{ flex: 1 }}>
-                                                        <div style={{ fontWeight: 'bold', fontSize: '14px', color: '#e91e63' }}>
-                                                            {item.slotName}
-                                                        </div>
-                                                        <div style={{ fontSize: '13px', color: '#666' }}>
-                                                            {item.itemName || '아바타 없음'}
-                                                        </div>
-                                                    </div>
-                                                </div>
                                             </div>
-                                        ))}
+                                            <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
+                                                <span style={{
+                                                    backgroundColor: '#e91e63',
+                                                    color: 'white',
+                                                    fontSize: '11px',
+                                                    fontWeight: 'bold',
+                                                    padding: '2px 6px',
+                                                    borderRadius: '4px'
+                                                }}>
+                                                    Lv.{characterData.buffAvatar.buff.skillInfo.option?.level || 0}
+                                                </span>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             )}
 
-                            {/* 크리처 버프 */}
-                            {characterData.buffCreature && (
-                                <div style={{ backgroundColor: '#f8f9fa', padding: '20px', borderRadius: '8px', border: '1px solid #dee2e6' }}>
-                                    <h4 style={{ margin: '0 0 15px 0', color: '#495057', borderBottom: '2px solid #dee2e6', paddingBottom: '8px' }}>
-                                        크리처 버프
-                                    </h4>
-                                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '15px' }}>
-                                        {characterData.buffCreature.buff.creature && Array.isArray(characterData.buffCreature.buff.creature) &&
-                                            characterData.buffCreature.buff.creature.map((item, idx) => (
-                                                <div key={idx} style={{
-                                                    backgroundColor: 'white',
-                                                    padding: '15px',
-                                                    borderRadius: '6px',
-                                                    border: '1px solid #dee2e6'
+                            {/* 아바타 버프 아이템들 */}
+                            {characterData.buffAvatar?.buff?.avatar && Array.isArray(characterData.buffAvatar.buff.avatar) && 
+                             characterData.buffAvatar.buff.avatar.map((item, idx) => (
+                                <div key={`avatar-${idx}`} style={{ 
+                                    backgroundColor: '#f8f9fa', 
+                                    padding: '15px', 
+                                    borderRadius: '6px',
+                                    border: '1px solid #dee2e6',
+                                    overflow: 'hidden',
+                                    width: '100%',
+                                    boxSizing: 'border-box'
+                                }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                        {item.itemId ? (
+                                            <img 
+                                                src={`https://img-api.neople.co.kr/df/items/${item.itemId}`}
+                                                alt={item.itemName}
+                                                style={{ 
+                                                    width: '32px', 
+                                                    height: '32px',
+                                                    borderRadius: '4px'
+                                                }}
+                                                onError={(e) => {
+                                                    e.target.style.display = 'none';
+                                                }}
+                                            />
+                                        ) : (
+                                            <div style={{ 
+                                                width: '32px', 
+                                                height: '32px', 
+                                                backgroundColor: '#dee2e6', 
+                                                borderRadius: '4px'
+                                            }} />
+                                        )}
+                                        <div style={{ flex: 1, minWidth: 0, overflow: 'hidden' }}>
+                                            <div style={{ fontWeight: 'bold', fontSize: '14px', marginBottom: '4px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.slotName}</div>
+                                            <div style={{ fontSize: '12px', color: '#666', marginBottom: '4px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                                {item.itemName || '아바타 없음'}
+                                            </div>
+                                            <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
+                                                <span style={{
+                                                    backgroundColor: '#6c757d',
+                                                    color: 'white',
+                                                    fontSize: '11px',
+                                                    fontWeight: 'bold',
+                                                    padding: '2px 6px',
+                                                    borderRadius: '4px'
                                                 }}>
-                                                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                                                        {item.itemId && (
-                                                            <img
-                                                                src={`https://img-api.neople.co.kr/df/items/${item.itemId}`}
-                                                                alt={item.itemName}
-                                                                style={{
-                                                                    width: '32px',
-                                                                    height: '32px',
-                                                                    borderRadius: '4px'
-                                                                }}
-                                                                onError={(e) => {
-                                                                    e.target.style.display = 'none';
-                                                                }}
-                                                            />
-                                                        )}
-                                                        <div style={{ flex: 1 }}>
-                                                            <div style={{ fontWeight: 'bold', fontSize: '14px', color: '#e91e63' }}>
-                                                                {item.slotName}
-                                                            </div>
-                                                            <div style={{ fontSize: '13px', color: '#666' }}>
-                                                                {item.itemName || '아바타 없음'}
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            ))}
+                                                    아바타
+                                                </span>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
-                            )}
+                            ))}
 
-                            {/* 장비 버프 */}
-                            {characterData.buffEquipment && (
-                                <div style={{ backgroundColor: '#f8f9fa', padding: '20px', borderRadius: '8px', border: '1px solid #dee2e6', gridColumn: 'span 2' }}>
-                                    <h4 style={{ margin: '0 0 15px 0', color: '#495057', borderBottom: '2px solid #dee2e6', paddingBottom: '8px' }}>
-                                        장비 버프
-                                    </h4>
-                                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '15px' }}>
-                                        {characterData.buffEquipment.buff.equipment && Array.isArray(characterData.buffEquipment.buff.equipment) &&
-                                            characterData.buffEquipment.buff.equipment.map((item, idx) => (
-                                                <div key={idx} style={{
-                                                    backgroundColor: 'white',
-                                                    padding: '15px',
-                                                    borderRadius: '6px',
-                                                    border: '1px solid #dee2e6'
+                            {/* 크리처 버프 아이템들 */}
+                            {characterData.buffCreature?.buff?.creature && Array.isArray(characterData.buffCreature.buff.creature) &&
+                             characterData.buffCreature.buff.creature.map((item, idx) => (
+                                <div key={`creature-${idx}`} style={{ 
+                                    backgroundColor: '#f8f9fa', 
+                                    padding: '15px', 
+                                    borderRadius: '6px',
+                                    border: '1px solid #dee2e6',
+                                    overflow: 'hidden',
+                                    width: '100%',
+                                    boxSizing: 'border-box'
+                                }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                        {item.itemId ? (
+                                            <img 
+                                                src={`https://img-api.neople.co.kr/df/items/${item.itemId}`}
+                                                alt={item.itemName}
+                                                style={{ 
+                                                    width: '32px', 
+                                                    height: '32px',
+                                                    borderRadius: '4px'
+                                                }}
+                                                onError={(e) => {
+                                                    e.target.style.display = 'none';
+                                                }}
+                                            />
+                                        ) : (
+                                            <div style={{ 
+                                                width: '32px', 
+                                                height: '32px', 
+                                                backgroundColor: '#dee2e6', 
+                                                borderRadius: '4px'
+                                            }} />
+                                        )}
+                                        <div style={{ flex: 1, minWidth: 0, overflow: 'hidden' }}>
+                                            <div style={{ fontWeight: 'bold', fontSize: '14px', marginBottom: '4px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.slotName}</div>
+                                            <div style={{ fontSize: '12px', color: '#666', marginBottom: '4px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                                {item.itemName || '크리처 없음'}
+                                            </div>
+                                            <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
+                                                <span style={{
+                                                    backgroundColor: '#28a745',
+                                                    color: 'white',
+                                                    fontSize: '11px',
+                                                    fontWeight: 'bold',
+                                                    padding: '2px 6px',
+                                                    borderRadius: '4px'
                                                 }}>
-                                                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                                                        {item.itemId && (
-                                                            <img
-                                                                src={`https://img-api.neople.co.kr/df/items/${item.itemId}`}
-                                                                alt={item.itemName}
-                                                                style={{
-                                                                    width: '32px',
-                                                                    height: '32px',
-                                                                    borderRadius: '4px'
-                                                                }}
-                                                                onError={(e) => {
-                                                                    e.target.style.display = 'none';
-                                                                }}
-                                                            />
-                                                        )}
-                                                        <div style={{ flex: 1 }}>
-                                                            <div style={{ fontWeight: 'bold', fontSize: '14px', color: '#e91e63' }}>
-                                                                {item.slotName}
-                                                            </div>
-                                                            <div style={{ fontSize: '13px', color: '#666' }}>
-                                                                {item.itemName || '아바타 없음'}
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            ))}
+                                                    크리처
+                                                </span>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
-                            )}
+                            ))}
+
+                            {/* 장비 버프 아이템들 */}
+                            {characterData.buffEquipment?.buff?.equipment && Array.isArray(characterData.buffEquipment.buff.equipment) &&
+                             characterData.buffEquipment.buff.equipment.map((item, idx) => (
+                                <div key={`equipment-${idx}`} style={{ 
+                                    backgroundColor: '#f8f9fa', 
+                                    padding: '15px', 
+                                    borderRadius: '6px',
+                                    border: '1px solid #dee2e6',
+                                    overflow: 'hidden',
+                                    width: '100%',
+                                    boxSizing: 'border-box'
+                                }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                        {item.itemId ? (
+                                            <img 
+                                                src={`https://img-api.neople.co.kr/df/items/${item.itemId}`}
+                                                alt={item.itemName}
+                                                style={{ 
+                                                    width: '32px', 
+                                                    height: '32px',
+                                                    borderRadius: '4px'
+                                                }}
+                                                onError={(e) => {
+                                                    e.target.style.display = 'none';
+                                                }}
+                                            />
+                                        ) : (
+                                            <div style={{ 
+                                                width: '32px', 
+                                                height: '32px', 
+                                                backgroundColor: '#dee2e6', 
+                                                borderRadius: '4px'
+                                            }} />
+                                        )}
+                                        <div style={{ flex: 1, minWidth: 0, overflow: 'hidden' }}>
+                                            <div style={{ fontWeight: 'bold', fontSize: '14px', marginBottom: '4px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.slotName}</div>
+                                            <div style={{ fontSize: '12px', color: '#666', marginBottom: '4px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                                {item.itemName || '장비 없음'}
+                                            </div>
+                                            <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
+                                                <span style={{
+                                                    backgroundColor: '#ffc107',
+                                                    color: 'black',
+                                                    fontSize: '11px',
+                                                    fontWeight: 'bold',
+                                                    padding: '2px 6px',
+                                                    borderRadius: '4px'
+                                                }}>
+                                                    장비
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
 
                             {/* 버프가 없는 경우 */}
-                            {(!characterData.buffAvatar || characterData.buffAvatar.length === 0) &&
-                             (!characterData.buffCreature || characterData.buffCreature.length === 0) &&
-                             (!characterData.buffEquipment || characterData.buffEquipment.length === 0) && (
+                            {(!characterData.buffAvatar?.buff?.skillInfo) &&
+                             (!characterData.buffAvatar?.buff?.avatar || characterData.buffAvatar.buff.avatar.length === 0) &&
+                             (!characterData.buffCreature?.buff?.creature || characterData.buffCreature.buff.creature.length === 0) &&
+                             (!characterData.buffEquipment?.buff?.equipment || characterData.buffEquipment.buff.equipment.length === 0) && (
                                 <div style={{ 
                                     gridColumn: '1 / -1', 
                                     textAlign: 'center', 
                                     padding: '40px', 
-                                    color: '#666' 
+                                    color: '#666',
+                                    backgroundColor: '#f8f9fa',
+                                    borderRadius: '6px',
+                                    border: '1px solid #dee2e6'
                                 }}>
                                     활성화된 버프가 없습니다.
                                 </div>
@@ -507,13 +562,16 @@ const  Dnf = ({ gameKey, subVal }) => {
                     )}
 
                     {activeInfoTab === 'equipment' && characterData.equipment && (
-                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '15px' }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(350px, 100%), 1fr))', gap: '15px' }}>
                             {characterData.equipment.map((item, idx) => (
                                 <div key={idx} style={{ 
                                     backgroundColor: '#f8f9fa', 
                                     padding: '15px', 
                                     borderRadius: '6px',
-                                    border: '1px solid #dee2e6'
+                                    border: '1px solid #dee2e6',
+                                    overflow: 'hidden',
+                                    width: '100%',
+                                    boxSizing: 'border-box'
                                 }}>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                                         {item.itemId && (
@@ -530,17 +588,19 @@ const  Dnf = ({ gameKey, subVal }) => {
                                                 }}
                                             />
                                         )}
-                                        <div style={{ flex: 1 }}>
-                                            <div style={{ fontWeight: 'bold', fontSize: '14px' }}>{item.slotName}</div>
-                                            <div style={{ fontSize: '13px', color: '#666', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                                <span>{item.itemName || '장착 없음'}</span>
+                                        <div style={{ flex: 1, minWidth: 0, overflow: 'hidden' }}>
+                                            <div style={{ fontWeight: 'bold', fontSize: '14px', marginBottom: '4px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.slotName}</div>
+                                            <div style={{ fontSize: '12px', color: '#666', marginBottom: '4px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                                {item.itemName || '장착 없음'}
+                                            </div>
+                                            <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
                                                 {item.reinforce && item.reinforce > 0 && (
                                                     <span style={{
-                                                        backgroundColor: item.amplificationName !== null ? '#e91e63' : '#2196f3',
+                                                        backgroundColor: '#2196f3',
                                                         color: 'white',
                                                         fontSize: '11px',
                                                         fontWeight: 'bold',
-                                                        padding: '1px 6px',
+                                                        padding: '2px 6px',
                                                         borderRadius: '4px'
                                                     }}>
                                                         +{item.reinforce}
@@ -552,7 +612,7 @@ const  Dnf = ({ gameKey, subVal }) => {
                                                         color: 'white',
                                                         fontSize: '11px',
                                                         fontWeight: 'bold',
-                                                        padding: '1px 6px',
+                                                        padding: '2px 6px',
                                                         borderRadius: '4px'
                                                     }}>
                                                         {item.amplificationName}
@@ -567,7 +627,7 @@ const  Dnf = ({ gameKey, subVal }) => {
                     )}
 
                     {activeInfoTab === 'avatar' && characterData.avatar && (
-                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '15px' }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(300px, 100%), 1fr))', gap: '15px' }}>
                             {characterData.avatar.map((item, idx) => (
                                 <div key={idx} style={{
                                     backgroundColor: '#f8f9fa',
