@@ -37,16 +37,16 @@ jobs:
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           prompt: |
-            Please review this pull request and provide feedback on:
-            - Code quality and best practices
-            - Potential bugs or issues
-            - Performance considerations
-            - Security concerns
-            - Test coverage
+            이 풀 리퀘스트를 검토하고 다음 항목에 대해 한국어로 피드백을 제공해주세요:
+            - 코드 품질 및 모범 사례
+            - 잠재적 버그나 문제점
+            - 성능 고려사항
+            - 보안 이슈
+            - 테스트 커버리지
             
-            Use the repository's CLAUDE.md for guidance on style and conventions. Be constructive and helpful in your feedback.
+            리포지토리의 CLAUDE.md를 참조하여 스타일과 규칙을 확인하세요. 건설적이고 도움이 되는 피드백을 제공해주세요.
 
-            Use `gh pr comment` with your Bash tool to leave your review as a comment on the PR.
+            Bash 도구의 `gh pr comment`를 사용하여 PR에 리뷰 댓글을 남겨주세요.
           
           # See https://github.com/anthropics/claude-code-action/blob/main/docs/usage.md
           # or https://docs.anthropic.com/en/docs/claude-code/sdk#command-line for available options
