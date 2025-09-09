@@ -1,0 +1,29 @@
+/* Layout 페이지 스타일 */
+
+.main-container {
+    padding: 0 10rem;
+    max-width: 1200px;
+    margin: 0 auto;
+    margin-top: 3rem;
+}
+
+/* 모바일 반응형 */
+@media (max-width: 1024px) {
+    .main-container {
+        padding: 0 4rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .main-container {
+        padding: 0 2rem;
+        margin-top: 2rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .main-container {
+        padding: 0 1rem;
+        margin-top: 1.5rem;
+    }
+}

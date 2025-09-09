@@ -6,6 +6,7 @@ import {getCypherInfo, getDnfInfo, getLolInfo, mergeFavorites} from "../api/game
 import Alert from "../components/Alert.jsx";
 import {UserStore} from "../store/UserStore.jsx";
 import {useNavigate} from "react-router-dom";
+import '../styles/Home.css';
 
 
 function Home() {
@@ -241,12 +242,14 @@ function Home() {
                 {
                     cyphersData !== null && cyphersData !== undefined && radioVal === '사퍼' ?
                         <>
-                            <div style={{ display: 'flex', justifyContent: 'center', marginTop: '30px' }}>
-                                <Card style={{ width: '18rem' }} onClick={() => moveDetail(cyphersData.playerId)}>
+                            <div className="game-card-container">
+                                <Card className="game-card single" onClick={() => moveDetail(cyphersData.playerId)}>
                                     <Card.Img variant="top" src={`https://img-api.neople.co.kr/cy/characters/${cyphersData.represent.characterId}?zoom=3`}/>
                                     <Card.Body>
-                                        <div className="d-flex justify-content-between align-items-center mb-3">
-                                            <Card.Title className="mb-0">{cyphersData?.nickname}</Card.Title>
+                                        <div className="card-header">
+                                            <Card.Title className="card-title">
+                                                {cyphersData?.nickname}
+                                            </Card.Title>
                                             {
                                                 isLogin ?
                                                     <Button
@@ -258,24 +261,23 @@ function Home() {
                                                         }}
                                                     >
                                                         {cyphersData.favorite ? "⭐" : "☆"}
-
                                                     </Button>
                                                     :
                                                     null
                                             }
                                         </div>
-                                        <div className="d-flex flex-column gap-2">
-                                            <div className="d-flex justify-content-between">
-                                                <span className="fw-bold">등급:</span>
-                                                <span>{cyphersData?.grade}</span>
+                                        <div className="card-info-list">
+                                            <div className="card-info-row">
+                                                <span className="card-info-label">등급:</span>
+                                                <span className="card-info-value">{cyphersData?.grade}</span>
                                             </div>
-                                            <div className="d-flex justify-content-between">
-                                                <span className="fw-bold">클랜:</span>
-                                                <span>{cyphersData?.clanName || '없음'}</span>
+                                            <div className="card-info-row">
+                                                <span className="card-info-label">클랜:</span>
+                                                <span className="card-info-value">{cyphersData?.clanName || '없음'}</span>
                                             </div>
-                                            <div className="d-flex justify-content-between">
-                                                <span className="fw-bold">티어:</span>
-                                                <span>{cyphersData?.tierName || '기록없음'}</span>
+                                            <div className="card-info-row">
+                                                <span className="card-info-label">티어:</span>
+                                                <span className="card-info-value">{cyphersData?.tierName || '기록없음'}</span>
                                             </div>
                                         </div>
                                     </Card.Body>
@@ -288,13 +290,23 @@ function Home() {
                 {
                     dnfData && dnfData.rows && dnfData.rows.length > 0 && radioVal === '던파' ?
                         <>
-                            <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '20px', marginTop: '30px' }}>
+                            <div className="game-card-container grid">
                                 {dnfData.rows.map((character, index) => (
-                                    <Card key={index} style={{ width: '18rem' }} onClick={() => moveDetail(character.characterId, character.serverId)}>
-                                        <Card.Img variant="top" src={`https://img-api.neople.co.kr/df/servers/${character.serverId}/characters/${character.characterId}?zoom=1`} style={{ marginTop: '-5rem' }}/>
+                                    <Card
+                                        key={index} 
+                                        className="game-card grid-item"
+                                        onClick={() => moveDetail(character.characterId, character.serverId)}
+                                    >
+                                        <Card.Img 
+                                            variant="top" 
+                                            src={`https://img-api.neople.co.kr/df/servers/${character.serverId}/characters/${character.characterId}?zoom=1`} 
+                                            className="dnf-character-image"
+                                        />
                                         <Card.Body>
-                                            <div className="d-flex justify-content-between align-items-center mb-3">
-                                                <Card.Title className="mb-0">{character?.characterName}</Card.Title>
+                                            <div className="card-header">
+                                                <Card.Title className="card-title">
+                                                    {character?.characterName}
+                                                </Card.Title>
                                                 {
                                                     isLogin ?
                                                         <Button
@@ -311,18 +323,18 @@ function Home() {
                                                         null
                                                 }
                                             </div>
-                                            <div className="d-flex flex-column gap-2">
-                                                <div className="d-flex justify-content-between">
-                                                    <span className="fw-bold">레벨:</span>
-                                                    <span>{character?.level}</span>
+                                            <div className="card-info-list">
+                                                <div className="card-info-row">
+                                                    <span className="card-info-label">레벨:</span>
+                                                    <span className="card-info-value">{character?.level}</span>
                                                 </div>
-                                                <div className="d-flex justify-content-between">
-                                                    <span className="fw-bold">직업:</span>
-                                                    <span>{character?.jobGrowName}</span>
+                                                <div className="card-info-row">
+                                                    <span className="card-info-label">직업:</span>
+                                                    <span className="card-info-value">{character?.jobGrowName}</span>
                                                 </div>
-                                                <div className="d-flex justify-content-between">
-                                                    <span className="fw-bold">명성:</span>
-                                                    <span>{character?.fame || '기록없음'}</span>
+                                                <div className="card-info-row">
+                                                    <span className="card-info-label">명성:</span>
+                                                    <span className="card-info-value">{character?.fame || '기록없음'}</span>
                                                 </div>
                                             </div>
                                         </Card.Body>
@@ -336,12 +348,14 @@ function Home() {
                 {
                     lolData !== null && lolData !== undefined && radioVal === '롤' ?
                         <>
-                            <div style={{ display: 'flex', justifyContent: 'center', marginTop: '30px' }}>
-                                <Card style={{ width: '18rem' }} onClick={() => moveDetail(lolData.puuid)}>
+                            <div className="game-card-container">
+                                <Card className="game-card single" onClick={() => moveDetail(lolData.puuid)}>
                                     <Card.Img variant="top" src={`https://ddragon.leagueoflegends.com/cdn/14.23.1/img/profileicon/${lolData.profileIconId}.png`}/>
                                     <Card.Body>
-                                        <div className="d-flex justify-content-between align-items-center mb-3">
-                                            <Card.Title className="mb-0">{nicknameVal}</Card.Title>
+                                        <div className="card-header">
+                                            <Card.Title className="card-title">
+                                                {nicknameVal}
+                                            </Card.Title>
                                             {
                                                 isLogin ?
                                                     <Button
@@ -358,10 +372,10 @@ function Home() {
                                                     null
                                             }
                                         </div>
-                                        <div className="d-flex flex-column gap-2">
-                                            <div className="d-flex justify-content-between">
-                                                <span className="fw-bold">레벨:</span>
-                                                <span>{lolData?.summonerLevel}</span>
+                                        <div className="card-info-list">
+                                            <div className="card-info-row">
+                                                <span className="card-info-label">레벨:</span>
+                                                <span className="card-info-value">{lolData?.summonerLevel}</span>
                                             </div>
                                         </div>
                                     </Card.Body>
