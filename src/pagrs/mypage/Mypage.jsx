@@ -29,7 +29,7 @@ export const Mypage = () => {
             <>
                 <h1>마이페이지</h1>
                 <p>아이디 : {data?.userId}</p>
-                <p>리뷰테스트2</p>
+                <p>리뷰테스트3</p>
             </>
     )
 }
