@@ -21,7 +21,6 @@ const  Dnf = ({ gameKey, subVal }) => {
         data,
         fetchNextPage,
         hasNextPage,
-        isFetchingNextPage,
     } = useInfiniteQuery({
         queryKey: ["DNF_TIMELINE", gameKey, subVal],
         queryFn: ({ pageParam = '' }) => {
@@ -193,10 +192,9 @@ const  Dnf = ({ gameKey, subVal }) => {
                     {hasNextPage && (
                         <button
                             onClick={() => fetchNextPage()}
-                            disabled={isFetchingNextPage}
                             className="load-more-button"
                         >
-                            {isFetchingNextPage ? '로딩중...' : '더보기'}
+                            더보기
                         </button>
                     )}
                 </div>

@@ -9,10 +9,13 @@ import {getAccessToken} from "./helpers/AuthHelper.jsx";
 import {UserStore} from "./store/UserStore.jsx";
 import Join from "./pages/auth/Join.jsx";
 import Detail from "./pages/game/Detail.jsx";
+import LoadingOverlay from "./components/LoadingOverlay.jsx";
+import useLoadingStore from "./store/LoadingStore.jsx";
 
 function App() {
 
     const { isLogin , setIsLogin} = UserStore((state) => state);
+    const { isLoading } = useLoadingStore((state) => state);
 
     useEffect(() => {
         const accessToken = getAccessToken();
@@ -33,6 +36,7 @@ function App() {
              </Route>
          </Routes>
      </BrowserRouter>
+     <LoadingOverlay isVisible={isLoading} />
     </>
   )
 }
