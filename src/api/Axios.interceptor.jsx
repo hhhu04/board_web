@@ -6,6 +6,7 @@ import {
     setAccessToken,
     setRefreshToken
 } from "../helpers/AuthHelper.jsx";
+import useLoadingStore from "../store/LoadingStore.jsx";
 
 
 axios.defaults.baseURL = import.meta.env.VITE_SERVER_URL
@@ -16,6 +17,8 @@ let processAwait = null;
 export const init = async () => {
         //console.log("===> Axios.interceptor::init()")
         axios.interceptors.request.use((config) => {
+            // 로딩 시작
+            useLoadingStore.getState().startLoading();
 
             const accessToken = getAccessToken();
 
@@ -35,13 +38,17 @@ export const init = async () => {
 
             return config;
         }, err => {
+            // 요청 에러 시 로딩 중지
+            useLoadingStore.getState().stopLoading();
             console.error(err);
-            Promise.reject(err);
+            return Promise.reject(err);
         });
 
         axios.interceptors.response.use(
             response => {
                 //console.log('[ Axios.interceptor ] :: response OK');
+                // 성공 응답 시 로딩 중지
+                useLoadingStore.getState().stopLoading();
                 return response;
             },async err => {
                 const config = err.config;          // 기존에 수행하려고 했던 작업
@@ -93,6 +100,7 @@ export const init = async () => {
 
                                 } else {
                                     //토큰재발급 애러 :  토큰 삭제 후 로그인 페이지
+                                    useLoadingStore.getState().forceStopLoading();
                                     processAwait = null;
                                     removeAuthTokens()
                                     location.href = '/login';
@@ -100,6 +108,7 @@ export const init = async () => {
                                 }
                             } catch (e) {
                                 //토큰재발급 애러 :  토큰 삭제 후 로그인 페이지
+                                useLoadingStore.getState().forceStopLoading();
                                 removeAuthTokens()
                                 location.href = '/login';
                                 return Promise.reject(e)
@@ -129,22 +138,26 @@ export const init = async () => {
                     else if(response.data.object === -1002)
                     {
                         console.log('[ Axios.interceptor ] :: ERR :: [-1002] : WRONG TOKEN -> go login');
+                        useLoadingStore.getState().forceStopLoading();
                         removeAuthTokens();
                         location.href = '/';
                     }
                     else
                     {
                         console.log('else')
+                        useLoadingStore.getState().stopLoading();
                         return Promise.resolve(response);
                     }
 
                 }
                 else if(response.status === 500)
                 {
+                    useLoadingStore.getState().stopLoading();
                     return Promise.resolve(response);
                 }
                 else
                 {
+                    useLoadingStore.getState().stopLoading();
                     return Promise.reject(err);
                 }
 

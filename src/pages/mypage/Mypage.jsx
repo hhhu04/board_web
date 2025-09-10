@@ -15,14 +15,12 @@ export const Mypage = () => {
         }
     },[isLogin, nav])
 
-    const {data, isPending, isError, error} = useQuery({
+    const {data, isError, error} = useQuery({
         queryKey: ["USER_INFO"],
         queryFn: getUserInfo,
         enabled: isLogin
     })
 
-
-    if(isPending) return <h1>로딩중</h1>
     if(isError) return <h1>에러 발생</h1>
 
     return(

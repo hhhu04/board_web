@@ -1,18 +1,21 @@
 import {useEffect, useState} from 'react'
 import {BrowserRouter, Route, Routes} from "react-router-dom";
-import Layout from "./pagrs/layout/Layout.jsx";
-import Home from "./pagrs/Home.jsx";
+import Layout from "./pages/layout/Layout.jsx";
+import Home from "./pages/Home.jsx";
 import 'bootstrap/dist/css/bootstrap.min.css';
-import Login from "./pagrs/auth/Login.jsx";
-import Mypage from "./pagrs/mypage/Mypage.jsx";
+import Login from "./pages/auth/Login.jsx";
+import Mypage from "./pages/mypage/Mypage.jsx";
 import {getAccessToken} from "./helpers/AuthHelper.jsx";
 import {UserStore} from "./store/UserStore.jsx";
-import Join from "./pagrs/auth/Join.jsx";
-import Detail from "./pagrs/game/Detail.jsx";
+import Join from "./pages/auth/Join.jsx";
+import Detail from "./pages/game/Detail.jsx";
+import LoadingOverlay from "./components/LoadingOverlay.jsx";
+import useLoadingStore from "./store/LoadingStore.jsx";
 
 function App() {
 
     const { isLogin , setIsLogin} = UserStore((state) => state);
+    const { isLoading } = useLoadingStore((state) => state);
 
     useEffect(() => {
         const accessToken = getAccessToken();
@@ -33,6 +36,7 @@ function App() {
              </Route>
          </Routes>
      </BrowserRouter>
+     <LoadingOverlay isVisible={isLoading} />
     </>
   )
 }
