@@ -27,7 +27,7 @@ React + Vite 기반의 게임 정보 조회 웹 애플리케이션입니다. 던
 
 ### Development & Build
 - **ESLint** - 코드 품질 관리
-- **Docker & Nginx** - 컨테이너화 및 배포
+- **GitHub Actions** - CI/CD 자동화
 
 ## 📁 프로젝트 구조
 
@@ -108,41 +108,42 @@ npm run preview
 npm run lint
 ```
 
-## 🐳 Docker 배포
+## 🚀 배포 방식
 
-### Docker 이미지 빌드
+### 🌐 GitHub Actions + AWS S3 + CloudFront 배포
+
+프로덕션 환경은 GitHub Actions를 통해 AWS S3에 정적 파일을 업로드하고 CloudFront 캐시를 무효화하는 방식으로 배포됩니다.
+
+#### 배포 프로세스
+1. **자동 트리거**: `main` 브랜치에 푸시 시 자동 배포 시작
+2. **빌드**: Node.js 환경에서 프로덕션 빌드 수행
+3. **S3 업로드**: 빌드된 정적 파일들을 S3 버킷에 동기화
+4. **캐시 전략**: 
+   - 정적 자산 (JS/CSS/이미지): 1년 캐시 (`max-age=31536000`)
+   - HTML 파일: 캐시 방지 (`no-cache, no-store`)
+5. **CloudFront 무효화**: 전체 캐시 무효화로 즉시 반영
+
+#### 필요한 GitHub Secrets
 ```bash
-# 환경 변수와 함께 빌드
-docker build \
-  --build-arg VITE_SERVER_URL=https://api.example.com/api \
-  --build-arg VITE_AUTH_URL=https://api.example.com/auth \
-  --build-arg VITE_APP_ENV=production \
-  --build-arg VITE_APP_COOKIE_DOMAIN=example.com \
-  -t board-web .
+# AWS 인증 정보
+AWS_ACCESS_KEY_ID=your_aws_access_key
+AWS_SECRET_ACCESS_KEY=your_aws_secret_key
+
+# S3 및 CloudFront 설정
+S3_BUCKET_NAME=your-s3-bucket-name
+CLOUDFRONT_DISTRIBUTION_ID=your_cloudfront_distribution_id
+
+# 애플리케이션 환경 변수
+VITE_PROD_SERVER_URL=https://api.yourdomain.com/api
+VITE_PROD_AUTH_URL=https://api.yourdomain.com/auth
+VITE_PROD_COOKIE_DOMAIN=yourdomain.com
 ```
 
-### Docker 실행
-```bash
-# 컨테이너 실행
-docker run -d -p 80:80 board-web
-```
-
-### Docker Compose (예시)
-```yaml
-version: '3.8'
-services:
-  board-web:
-    build:
-      context: .
-      args:
-        VITE_SERVER_URL: https://api.example.com/api
-        VITE_AUTH_URL: https://api.example.com/auth
-        VITE_APP_ENV: production
-        VITE_APP_COOKIE_DOMAIN: example.com
-    ports:
-      - "80:80"
-    restart: unless-stopped
-```
+#### AWS 인프라 요구사항
+- **S3 버킷**: 정적 웹사이트 호스팅 활성화
+- **CloudFront 배포**: S3 버킷을 오리진으로 설정
+- **Route 53** (선택사항): 커스텀 도메인 설정
+- **ACM 인증서**: HTTPS 지원
 
 ## 🔐 보안 기능
 
@@ -175,15 +176,33 @@ services:
 
 ## 🔄 배포 파이프라인
 
-### Multi-stage Docker Build
-1. **Builder Stage**: Node.js 환경에서 소스 빌드
-2. **Production Stage**: Nginx Alpine으로 정적 파일 서빙
-3. **최적화**: 이미지 크기 최소화 및 캐싱 전략
+### GitHub Actions CI/CD
+프로덕션 배포는 완전 자동화된 파이프라인을 통해 진행됩니다:
 
-### Nginx 설정
-- **SPA 라우팅**: `try_files`를 통한 클라이언트 라우팅 지원
-- **정적 파일 캐싱**: JS/CSS/이미지 파일 1년 캐싱
-- **압축**: Gzip 압축을 통한 전송 최적화
+1. **코드 체크아웃**: GitHub 저장소에서 최신 코드 가져오기
+2. **Node.js 환경 설정**: Node.js 22 LTS 환경 구성
+3. **의존성 설치**: `npm ci`로 정확한 버전 설치
+4. **프로덕션 빌드**: 환경 변수와 함께 최적화된 빌드 생성
+5. **AWS 인증**: IAM 자격 증명으로 AWS 서비스 접근
+6. **S3 배포**: 
+   - 기존 파일 삭제 후 새 파일 동기화 (`--delete`)
+   - 정적 자산: 1년 캐시 설정
+   - HTML 파일: 캐시 무효화 설정
+7. **CloudFront 무효화**: 
+   - 전체 경로 (`/*`) 캐시 무효화
+   - 무효화 완료까지 대기
+   - 즉시 업데이트 반영
+
+### 캐시 전략
+- **정적 자산 (JS/CSS/이미지)**: `max-age=31536000,public` (1년)
+- **HTML 파일**: `max-age=0,no-cache,no-store,must-revalidate`
+- **CloudFront**: 엣지 캐시 최적화로 글로벌 성능 향상
+
+### 성능 최적화
+- **Vite 빌드 최적화**: 코드 스플리팅 및 번들 최적화
+- **이미지 최적화**: WebP 포맷 지원 및 지연 로딩
+- **트리 쉐이킹**: 사용하지 않는 코드 제거
+- **CloudFront CDN**: 전 세계 엣지 로케이션을 통한 빠른 콘텐츠 전송
 
 ## 📋 주요 의존성
 
@@ -201,22 +220,3 @@ services:
   }
 }
 ```
-
-## 🐛 문제 해결
-
-### 일반적인 문제들
-1. **CORS 에러**: 서버에서 CORS 설정 확인
-2. **토큰 만료**: 자동 갱신 로직이 작동하는지 확인
-3. **라우팅 404**: Nginx 설정에서 `try_files` 확인
-
-### 개발 환경 문제
-1. **환경 변수 로딩**: `.env.*` 파일이 올바른 위치에 있는지 확인
-2. **포트 충돌**: 다른 서비스가 해당 포트를 사용하고 있는지 확인
-
-## 📄 라이센스
-
-이 프로젝트는 개인 프로젝트입니다.
-
-## 🤝 기여
-
-프로젝트 개선을 위한 제안이나 버그 리포트는 언제든 환영합니다.
