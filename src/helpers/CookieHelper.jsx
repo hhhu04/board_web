@@ -8,6 +8,12 @@ export const setCookie = (key, value, expires) => {
     const options = {}
     options.expires = expires;
     options.path = '/';
+    
+    // 보안 설정 추가
+    if (window.location.protocol === 'https:') {
+        options.secure = true;
+    }
+    options.sameSite = 'strict';
 
     if (import.meta.env.VITE_APP_ENV !== 'local') {
         options.domain = `.${import.meta.env.VITE_APP_COOKIE_DOMAIN}`;

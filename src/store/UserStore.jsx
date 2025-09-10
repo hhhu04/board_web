@@ -1,10 +1,9 @@
 import {create} from "zustand";
 import {createJSONStorage, persist} from 'zustand/middleware'
 
+// eslint-disable-next-line no-unexpected-multiline
 export const UserStore = create(
-    persist
-        // eslint-disable-next-line no-unexpected-multiline
-    (
+    persist(
         (set) => ({
 
             // 로그인 여부

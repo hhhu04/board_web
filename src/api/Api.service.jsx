@@ -17,7 +17,7 @@ export const login = async (params) => {
 }
 
 export const logout= async (params) => {
-    console.log('=> Api.service:login');
+    console.log('=> Api.service:logout');
 
     await init();
     return axios.post(import.meta.env.VITE_AUTH_URL+"/logout",params)
@@ -61,7 +61,7 @@ export const put = async (url, params) => {
 }
 
 export const patch = async (url, params) => {
-    console.log('Api.service:put');
+    console.log('Api.service:patch');
 
     await init();
     return axios.patch(url, params)
