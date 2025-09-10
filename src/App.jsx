@@ -1,5 +1,5 @@
 import {useEffect, useState} from 'react'
-import {BrowserRouter, Route, Routes} from "react-router-dom";
+import {BrowserRouter, Route, Routes, useNavigate} from "react-router-dom";
 import Layout from "./pages/layout/Layout.jsx";
 import Home from "./pages/Home.jsx";
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -11,6 +11,17 @@ import Join from "./pages/auth/Join.jsx";
 import Detail from "./pages/game/Detail.jsx";
 import LoadingOverlay from "./components/LoadingOverlay.jsx";
 import useLoadingStore from "./store/LoadingStore.jsx";
+import {setNavigate} from "./helpers/NavigationHelper.jsx";
+
+function NavigationSetup() {
+    const navigate = useNavigate();
+    
+    useEffect(() => {
+        setNavigate(navigate);
+    }, [navigate]);
+    
+    return null;
+}
 
 function App() {
 
@@ -26,6 +37,7 @@ function App() {
   return (
     <>
      <BrowserRouter>
+         <NavigationSetup />
          <Routes>
              <Route element={<Layout/>}>
                 <Route index element={<Home/>}/>

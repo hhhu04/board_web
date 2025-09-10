@@ -7,6 +7,7 @@ import {
     setRefreshToken
 } from "../helpers/AuthHelper.jsx";
 import useLoadingStore from "../store/LoadingStore.jsx";
+import {navigateTo} from "../helpers/NavigationHelper.jsx";
 
 
 axios.defaults.baseURL = import.meta.env.VITE_SERVER_URL
@@ -26,11 +27,7 @@ export const init = async () => {
                 config.headers['Authorization'] = `Bearer ${accessToken}`;
             }
             config.headers['Channel'] = 'WEB';
-
             config.headers['X-Requested-With'] = 'XMLHttpRequest';
-            config.headers['Access-Control-Allow-Credentials'] = true;
-            config.headers['Access-Control-Allow-Origin'] = '*';
-            config.headers['Access-Control-Allow-Methods'] = 'GET, PUT, POST, DELETE, OPTIONS';
             config.headers['Cache-Control'] = 'no-cache';
             config.headers['Pragma'] = 'no-cache';
 
@@ -95,7 +92,9 @@ export const init = async () => {
                                     config.headers.Authorization = `Bearer ${getAccessToken()}`;
 
                                     processAwait = null;
-
+                                    
+                                    // 토큰 갱신 성공 후 재시도 시에는 로딩 중지
+                                    useLoadingStore.getState().stopLoading();
                                     return axios(config);
 
                                 } else {
@@ -103,14 +102,14 @@ export const init = async () => {
                                     useLoadingStore.getState().forceStopLoading();
                                     processAwait = null;
                                     removeAuthTokens()
-                                    location.href = '/login';
+                                    navigateTo('/login');
                                     return Promise.reject(result);
                                 }
                             } catch (e) {
                                 //토큰재발급 애러 :  토큰 삭제 후 로그인 페이지
                                 useLoadingStore.getState().forceStopLoading();
                                 removeAuthTokens()
-                                location.href = '/login';
+                                navigateTo('/login');
                                 return Promise.reject(e)
                             }
                         } else {
@@ -119,8 +118,11 @@ export const init = async () => {
                             let config = response.config;
                             let headers = config.headers;
 
-                            config.headers['Authorization'] = getAccessToken();
+                            config.headers['Authorization'] = `Bearer ${getAccessToken()}`;
                             const retryAxios = axios.create({headers});
+
+                            // 재시도 시 로딩 중지
+                            useLoadingStore.getState().stopLoading();
 
                             if (config.method === 'get') {
                                 return retryAxios.get(config.url)
@@ -140,7 +142,7 @@ export const init = async () => {
                         console.log('[ Axios.interceptor ] :: ERR :: [-1002] : WRONG TOKEN -> go login');
                         useLoadingStore.getState().forceStopLoading();
                         removeAuthTokens();
-                        location.href = '/';
+                        navigateTo('/');
                     }
                     else
                     {

@@ -8,6 +8,8 @@ const useLoadingStore = create((set, get) => ({
         const currentCount = get().requestCount;
         const newCount = currentCount + 1;
         
+        console.log(`[LoadingStore] startLoading: ${currentCount} -> ${newCount}`);
+        
         set({ 
             requestCount: newCount,
             isLoading: true 
@@ -18,6 +20,8 @@ const useLoadingStore = create((set, get) => ({
         const currentCount = get().requestCount;
         const newCount = Math.max(0, currentCount - 1);
         
+        console.log(`[LoadingStore] stopLoading: ${currentCount} -> ${newCount}, isLoading: ${newCount > 0}`);
+        
         set({ 
             requestCount: newCount,
             isLoading: newCount > 0 
@@ -25,6 +29,7 @@ const useLoadingStore = create((set, get) => ({
     },
 
     forceStopLoading: () => {
+        console.log(`[LoadingStore] forceStopLoading: clearing all`);
         set({ 
             requestCount: 0,
             isLoading: false 
