@@ -349,7 +349,7 @@ function Home() {
                     lolData !== null && lolData !== undefined && radioVal === '롤' ?
                         <>
                             <div className="game-card-container">
-                                <Card className="game-card single" onClick={() => moveDetail(lolData.puuid)}>
+                                <Card className="game-card single" onClick={() => moveDetail(lolData.puuid, nicknameVal)}>
                                     <Card.Img variant="top" src={`https://ddragon.leagueoflegends.com/cdn/14.23.1/img/profileicon/${lolData.profileIconId}.png`}/>
                                     <Card.Body>
                                         <div className="card-header">
