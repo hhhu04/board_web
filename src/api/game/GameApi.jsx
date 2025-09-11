@@ -28,6 +28,10 @@ export const getLolInfo = async (params) => {
     return ApiService.get('/api/game/lol', params)
 }
 
+export const getLolDetail = async (param) => {
+    return ApiService.get(`/api/game/lol/${param}`)
+}
+
 
 export const mergeFavorites = async (params) => {
     return ApiService.post('/api/game/favorites', {params})
